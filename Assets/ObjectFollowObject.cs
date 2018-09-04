@@ -14,6 +14,7 @@ public class ObjectFollowObject : MonoBehaviour {
 	void Start () {
 		// pass through follow target
 		Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>());
+		transform.parent = null;
 	}
 	
 	// Update is called once per frame
