@@ -11,14 +11,29 @@ public class ObjectFollowObject : MonoBehaviour {
 	public Transform lookAtTarget;
 
 	// Use this for initialization
-	void Start () {
+	void Init(){
 		// pass through follow target
 		Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>());
 		transform.parent = null;
 	}
+
+	void OnEnable()
+    {
+        Init();
+    }
+
+	void Awake(){
+		Init();
+	}
+
+	void Start () {
+		Init();
+	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
+		//print(transform.parent);
+
 		// add camera rotation to the offset
 		offset = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * cameraTurnSpeed, Vector3.up) * offset;
 		offset = Quaternion.AngleAxis(Input.GetAxis("Mouse Y") * cameraTurnSpeed, Vector3.right) * offset;

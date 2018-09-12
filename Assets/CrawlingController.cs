@@ -13,11 +13,13 @@ public class CrawlingController : MonoBehaviour {
 	Vector3 targetDirection;
 	float hitboxHeight = 0.5f;
 	float hitboxRadius = 0.12f;
+	Vector3 hitboxPosition = new Vector3(0f, 0f, 0.5f);
 	float targetRotation;
 	float currentSpeed;
 	float targetSpeed;
 	float speedSmoothVelocity;
 	float turnSmoothTime = 5f;
+	float cameraTurnSpeed = 1f;
 	static float crawlSpeedSmoothTime = 0.1f;
 	static float crawlSpeed = 2f;
 	public GameObject specialMovementTrigger;
@@ -44,18 +46,27 @@ public class CrawlingController : MonoBehaviour {
 	void Update () {
 		var inputX =  Input.GetAxisRaw("Horizontal");
 		var inputZ = Input.GetAxisRaw("Vertical");
+		float mouseX = Input.GetAxis("Mouse X") * cameraTurnSpeed;
+		//float mouseY = Input.GetAxis("Mouse Y") * cameraTurnSpeed;
+
+		var rotation = transform.rotation.eulerAngles;
+
+		//rotation.x += mouseY;
+		rotation.y += mouseX;
+
+		transform.rotation = Quaternion.Euler(rotation);
 	
 		targetDirection = new Vector3(inputX, 0f, inputZ);
-		targetRotation = mainCameraT.eulerAngles.y;
+		//targetRotation = mainCameraT.eulerAngles.y;
 
-		Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
+		//Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
 		//transform.rotation = Quaternion.Slerp(transform.rotation, target,  Time.deltaTime * turnSmoothTime);
-		transform.rotation = target;
+		//transform.rotation = target;
 
 		var targetSpeed = crawlSpeed * targetDirection.magnitude;
 		var smoothTime = crawlSpeedSmoothTime;
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
-		Vector3 vel = targetDirection * currentSpeed;
+		Vector3 vel = (transform.forward * currentSpeed * inputZ) + (transform.right * currentSpeed * inputX);
 
 		controller.Move(vel * Time.deltaTime);
 
@@ -94,7 +105,7 @@ public class CrawlingController : MonoBehaviour {
 
 	void SetCrawlHitbox(){
 		controller.height = 0.5f;
-		controller.center = new Vector3(0f,  0.5f / 2f, 0f);
+		controller.center = new Vector3(0f,  0.5f / 2f, 0f) + hitboxPosition;
 	}
 
 	void OnTriggerEnter(Collider col){
