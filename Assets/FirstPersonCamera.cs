@@ -13,7 +13,7 @@ public class FirstPersonCamera : MonoBehaviour {
 		collider.enabled = false;
 		transform.parent = target.GetComponent<CharacterController>().transform;
 		transform.rotation = target.transform.rotation;//Quaternion.identity;
-		transform.localPosition = new Vector3(0f, target.GetComponent<CharacterController>().height, 0f);
+		transform.localPosition = new Vector3(0f, target.GetComponent<CharacterController>().height, 0.3f);
 	}
 
 	void OnEnable()

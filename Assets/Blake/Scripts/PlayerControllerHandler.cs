@@ -1,14 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerControllerHandler : MonoBehaviour {
 	bool inSpecialMovement = false;
 	GameObject specialMovementTrigger;
+	GameObject	mainCamera;
+	CameraController cameraController;
 
 	// Use this for initialization
 	void Start () {
-		this.GetComponent<PlayerController>().enabled = true;
+		GetComponent<PlayerController>().enabled = true;
+		mainCamera = GameObject.Find("CameraObject");
+		cameraController = mainCamera.GetComponent<CameraController>();
 	}
 	
 	// Update is called once per frame
@@ -18,31 +23,45 @@ public class PlayerControllerHandler : MonoBehaviour {
 		//print(inputInteract);
 
 		if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
-			var pc = this.GetComponent<PlayerController>();
-			pc.enabled = false;
+			this.GetComponent<PlayerController>().enabled = false;
 
-			var con = this.GetComponent<CrawlingController>();
-			con.specialMovementTrigger = specialMovementTrigger;
-			con.enabled = true;
+			switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
+				case "crawl":
+				GetComponent<CrawlingController>().enabled = true;
+				cameraController.ToggleFirstPerson();
+				break;
+				case "ladder":
+				var lcc = GetComponent<LadderClimbingController>();
+				lcc.ladder = specialMovementTrigger;
+				lcc.enabled = true;
+				break;
+			}
 
 			inSpecialMovement = true;
 		}
 	}
 
-	public void ExitSpecialMovment(){
+	public void ExitSpecialMovment(string movementType){
 		if(inSpecialMovement){
-			var con = this.GetComponent<CrawlingController>();
-			con.specialMovementTrigger = specialMovementTrigger;
+			var con = GetComponent<CrawlingController>();
 			con.enabled = false;
 
-			var pc = this.GetComponent<PlayerController>();
+			var pc = GetComponent<PlayerController>();
 			pc.enabled = true;
+
+
+			if(!string.IsNullOrWhiteSpace(movementType) && string.Equals(movementType, "crawl")){
+				cameraController.ToggleFirstPerson();
+			}
+			
 
 			inSpecialMovement = false;
 		}
 	}
 
 	void OnTriggerEnter(Collider col){
+		print(col.gameObject.name);
+
 		if(col.tag.Equals("SpecialMovementTrigger")){
 			specialMovementTrigger = col.gameObject;
 		}

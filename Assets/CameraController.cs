@@ -15,11 +15,11 @@ public class CameraController : MonoBehaviour {
 		if(Input.GetButtonDown("Hook")){
 			// this.GetComponent<ObjectFollowObject>().enabled = !this.GetComponent<ObjectFollowObject>().enabled;
 			// this.GetComponent<AimingCamera>().enabled = !this.GetComponent<AimingCamera>().enabled;
-			SwitchToFirstPerson();
+			//ToggleFirstPerson();
 		}
 	}
 
-	public void SwitchToFirstPerson(){
+	public void ToggleFirstPerson(){
 		this.GetComponent<ObjectFollowObject>().enabled = !this.GetComponent<ObjectFollowObject>().enabled;
 		this.GetComponent<FirstPersonCamera>().enabled = !this.GetComponent<FirstPersonCamera>().enabled;
 	}

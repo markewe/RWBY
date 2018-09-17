@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour {
 	float currentSpeed;
 	float speedSmoothVelocity;
 
-	float turnSmoothTime = 5f;
+	float turnSmoothTime = 10f;
 	
 	float velY;
 

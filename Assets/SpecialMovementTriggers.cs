@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SpecialMovementTriggers : MonoBehaviour {
-	public string MovementType = "crawl";
+	public string movementType;
 }
