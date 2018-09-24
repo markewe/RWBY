@@ -2,93 +2,47 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour {
+public class DefaultController : APlayerController {
 
 	public bool toggleRun = true;
+	float inputX;
+	float inputZ;
+
 	bool isClimbingLedge = false;
-	bool isSliding;
+	bool isCrouching = false;
 	bool isRunning = true;
 	bool isJumping = false;
 	bool isAttacking = false;
 	bool isHanging = false;
 	bool isDodging = false;
-	
 	bool missedComboWindow = false;
-	float hitboxHeight = 1.7f;
-	float hitboxRadius = 0.12f;
-
 	float jumpHeight = 4f;
-
 	float walkSpeed = 2f;
 	float runSpeed = 8f;
 	float jumpSpeed = 1f;
 	float speedSmoothTime = 0.1f;
-
-	float slideSmoothTime = 0.5f;
 	float jumpSmoothTime = 2f;
 	float currentSpeed;
 	float speedSmoothVelocity;
-
 	float turnSmoothTime = 10f;
-	
 	float velY;
-
 	int comboCounter = 0;
-
 	Vector3 targetDirection;
 	Vector3 dodgeDirection;
 	float dodgeRotation;
-
 	static float gravity = -9.8f;
-	static int attackTimeout = 120;
-
-	Transform mainCameraT;
-
-	CharacterController controller;
-
 	public GameObject playerWeapon;
 	public GameObject climbHook;
 	Transform hangingLedge;
-	
-	Animator animator;
-	Rigidbody rigibody;
 
-	// Use this for initialization
-	void Init(){
-		controller = GetComponent<CharacterController>();
-		animator = GetComponent<Animator>();
-		rigibody = GetComponent<Rigidbody>();
-		mainCameraT = Camera.main.transform;
-		targetDirection = new Vector3(0f, 0f, 0f);
-		dodgeDirection = new Vector3(0f, 0f, 0f);
-		SetNormalHitbox();
-	}
+	#region APlayerController functions
 
-	void OnEnable(){
-		Init();
-	}
-
-	void Start () {
-		controller = GetComponent<CharacterController>();
-		animator = GetComponent<Animator>();
-		rigibody = GetComponent<Rigidbody>();
-		mainCameraT = Camera.main.transform;
-		targetDirection = new Vector3(0f, 0f, 0f);
-		dodgeDirection = new Vector3(0f, 0f, 0f);
-		SetNormalHitbox();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-		var inputX = !isHanging ? Input.GetAxisRaw("Horizontal") : 0f;
-		var inputZ = Input.GetAxisRaw("Vertical");
-		var isCrouching = Input.GetButton("Crouch") & !isJumping;
+	public override void HandleInputs(){
+		inputX = !isHanging ? Input.GetAxis("Horizontal") : 0f;
+		inputZ = Input.GetAxis("Vertical");
+		isCrouching = Input.GetButton("Crouch") & !isJumping;
 
 		targetDirection = new Vector3(inputX, 0f, inputZ);
-		//targetDirection = targetDirection.normalized;
-
-		//print("begin " + targetDirection);
 
 		if(inputZ < 0f && isHanging && !isClimbingLedge){
 			isHanging = false;
@@ -101,8 +55,6 @@ public class PlayerController : MonoBehaviour {
 			else if(!isAttacking){
 				isAttacking = true;
 			}
-
-			//isRunning = false;
 		}
 
 		if(Input.GetButtonDown("Jump") && (!isAttacking || isHanging || !isJumping || !isClimbingLedge)){
@@ -115,7 +67,7 @@ public class PlayerController : MonoBehaviour {
 		if(Input.GetButtonDown("Dodge")) {
 			isDodging = true;
 			dodgeDirection = targetDirection;
-			dodgeRotation = Mathf.Atan2(dodgeDirection.x, dodgeDirection.z) * Mathf.Rad2Deg + mainCameraT.eulerAngles.y;
+			dodgeRotation = Mathf.Atan2(dodgeDirection.x, dodgeDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
 		}
 
 		if(!toggleRun){
@@ -126,46 +78,14 @@ public class PlayerController : MonoBehaviour {
 				isRunning = !isRunning;
 			}
 		}
+	}
 
-		// determine whether to slide or not
-		// if(currentSpeed > 7f && isRunning && isCrouching && !isSliding && !isJumping){
-		// 	isSliding = true;
-		// }
-		
-		// turn slowly based on camera's forward
-		if(!isJumping && !isDodging){
-			var targetRotation = transform.eulerAngles.y;
-			
-			if(isAttacking){
-				targetRotation = mainCameraT.eulerAngles.y;
-			}
-			else if(isHanging){
-				targetRotation = TurnTowardsLedge();
-			}
-			else if(targetDirection != Vector3.zero){
-				targetRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg + mainCameraT.eulerAngles.y;
-			}
-
-			Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
-			transform.rotation = !isAttacking ? Quaternion.Slerp(transform.rotation, target,  Time.deltaTime * turnSmoothTime) : target;
-
-			// print(targetRotation);
-			// print(transform.rotation);
-		}
-		else if (isDodging){
-			transform.rotation = Quaternion.Euler(Vector3.up * dodgeRotation);
-		}
-
+	public override void MovePlayer(){
+		// determine how fast to move
 		var targetSpeed = walkSpeed * targetDirection.magnitude;
 		var smoothTime = speedSmoothTime;
 		
-		//print("before " + targetDirection);
-
-		if(isSliding){
-			smoothTime = slideSmoothTime;
-			targetSpeed = 0f;
-		}
-		else if(isJumping){
+		 if(isJumping){
 			smoothTime = jumpSmoothTime;
 			targetSpeed = jumpSpeed * targetDirection.magnitude;
 		}
@@ -178,25 +98,13 @@ public class PlayerController : MonoBehaviour {
 			targetSpeed = 0f;
 		}
 		
-		//print("after " + targetDirection);
-
+		// move
 		if(isDodging){
-			//print(dodgeDirection.magnitude);
-			//print(runSpeed);
-			//print(transform.forward);
-			//print("dodging");
-
 			controller.Move(transform.forward * (runSpeed * dodgeDirection.magnitude) * Time.deltaTime);
 		}
-		
 		else if(!isAttacking && !isDodging){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 			Vector3 vel = transform.forward * currentSpeed + Vector3.up * velY;
-
-			//print(vel);
-			// print(controller.isGrounded);
-			//// print(isHanging);
-			//print("walking");
 			controller.Move(vel * Time.deltaTime);
 		}
 
@@ -212,40 +120,60 @@ public class PlayerController : MonoBehaviour {
 			velY = 0f;
 			isJumping = false;
 		}
+	}
 
+	public override void RotatePlayer(){
+		// turn slowly based on camera's forward
+		if(!isJumping && !isDodging){
+			var targetRotation = transform.eulerAngles.y;
+			
+			if(isAttacking){
+				targetRotation = Camera.main.transform.eulerAngles.y;
+			}
+			else if(isHanging){
+				targetRotation = TurnTowardsLedge();
+			}
+			else if(targetDirection != Vector3.zero){
+				targetRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
+			}
+
+			Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
+			transform.rotation = !isAttacking ? Quaternion.Slerp(transform.rotation, target,  Time.deltaTime * turnSmoothTime) : target;
+		}
+		else if (isDodging){
+			transform.rotation = Quaternion.Euler(Vector3.up * dodgeRotation);
+		}
+	}
+
+	public override void SetAnimations(){
 		// play animations
-		
 		animator.SetFloat("HSpeed", currentSpeed);
 		animator.SetBool("IsJumping", isJumping);
 		animator.SetFloat("VSpeed", velY);
 		animator.SetBool("IsAttacking", isAttacking);
 		animator.SetInteger("ComboCounter", comboCounter);
 		animator.SetBool("IsCrouching", isCrouching);
-		animator.SetBool("IsSliding", isSliding);
 		animator.SetBool("IsHanging", isHanging);
 		animator.SetFloat("InputX", inputX);
 		animator.SetFloat("InputZ", inputZ);
 		animator.SetBool("IsDodging", isDodging);
-
-		//print(currentSpeed);
 	}
 
-	void LateUpdate(){
-		
+	public override void SetHitbox(){
+		controller.height = 1.7f;
+		controller.center = new Vector3(0f,  1.7f / 2f, 0f);
 	}
+
+	#endregion
+
+	#region animation event functions
 
 	void ToggleWeaponHitbox(){
 		var collider = playerWeapon.GetComponent<BoxCollider>();
 		collider.enabled = !collider.enabled;
 	}
 
-	float DeltaFloat(float inputSpeed)
-	{
-		return inputSpeed * Time.deltaTime;
-	}
-
 	void StopAttack(){
-		isSliding = false;
 		isAttacking = false;
 		comboCounter = 0;
 		missedComboWindow = false;
@@ -259,33 +187,15 @@ public class PlayerController : MonoBehaviour {
 		missedComboWindow = true;
 	}
 
-	void EndSlide(){
-		//print("EndSlide");
-		//isRunning = false;
-		isSliding = false;
-	}
-
 	void EndDodge(){
 		isDodging = false;
 		dodgeDirection = Vector3.zero;
 		dodgeRotation = 0f;
 	}
 
-	void OnCollisionEnter(Collision col){
-		//print(col.gameObject.tag);
-		// if(col.gameObject.tag.Equals("Enemy")){
-		// 	currentSpeed = 0;
-		// }
-	}
-
-
+	#endregion
 
 	#region hitbox functions
-
-	void SetNormalHitbox(){
-		controller.height = 1.7f;
-		controller.center = new Vector3(0f,  1.7f / 2f, 0f);
-	}
 
 	void SetCrouchHitbox(){
 
@@ -294,22 +204,6 @@ public class PlayerController : MonoBehaviour {
 	void SetJumpHitbox(){
 		
 	}
-
-	#endregion
-
-	#region jumping functions
-
-
-
-	#endregion
-
-	#region crawling functions
-
-	void StartCrawl(){
-		
-	}
-
-	
 
 	#endregion
 
@@ -368,7 +262,7 @@ public class PlayerController : MonoBehaviour {
 
 	#endregion
 
-	#region helper functions
+	#region calculation helper functions
 
 	float NormalizeAngle (float angle){
 		while(angle < -180f){

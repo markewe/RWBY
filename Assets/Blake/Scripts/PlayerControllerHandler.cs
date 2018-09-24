@@ -11,7 +11,7 @@ public class PlayerControllerHandler : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		GetComponent<PlayerController>().enabled = true;
+		GetComponent<DefaultController>().enabled = true;
 		mainCamera = GameObject.Find("CameraObject");
 		cameraController = mainCamera.GetComponent<CameraController>();
 	}
@@ -20,20 +20,18 @@ public class PlayerControllerHandler : MonoBehaviour {
 	void Update () {
 		var inputInteract = Input.GetButton("Interact");
 
-		//print(inputInteract);
-
 		if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
-			this.GetComponent<PlayerController>().enabled = false;
+			this.GetComponent<DefaultController>().enabled = false;
 
 			switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
 				case "crawl":
-				GetComponent<CrawlingController>().enabled = true;
-				cameraController.ToggleFirstPerson();
+					GetComponent<CrawlingController>().enabled = true;
+					cameraController.ToggleFirstPerson();
 				break;
 				case "ladder":
-				var lcc = GetComponent<LadderClimbingController>();
-				lcc.ladder = specialMovementTrigger;
-				lcc.enabled = true;
+					var lcc = GetComponent<LadderClimbingController>();
+					lcc.ladder = specialMovementTrigger;
+					lcc.enabled = true;
 				break;
 			}
 
@@ -46,9 +44,8 @@ public class PlayerControllerHandler : MonoBehaviour {
 			var con = GetComponent<CrawlingController>();
 			con.enabled = false;
 
-			var pc = GetComponent<PlayerController>();
+			var pc = GetComponent<DefaultController>();
 			pc.enabled = true;
-
 
 			if(!string.IsNullOrWhiteSpace(movementType) && string.Equals(movementType, "crawl")){
 				cameraController.ToggleFirstPerson();
