@@ -40,24 +40,25 @@ public class PlayerControllerHandler : MonoBehaviour {
 	}
 
 	public void ExitSpecialMovment(string movementType){
-		if(inSpecialMovement){
-			var con = GetComponent<CrawlingController>();
-			con.enabled = false;
+		if(inSpecialMovement && !string.IsNullOrWhiteSpace(movementType)){
 
-			var pc = GetComponent<DefaultController>();
-			pc.enabled = true;
-
-			if(!string.IsNullOrWhiteSpace(movementType) && string.Equals(movementType, "crawl")){
-				cameraController.ToggleFirstPerson();
+			switch(movementType){
+				case "crawl":
+					GetComponent<CrawlingController>().enabled = false;
+					cameraController.ToggleFirstPerson();
+				break;
+				case "ladder":
+					GetComponent<LadderClimbingController>().enabled = false;
+				break;
 			}
-			
 
+			GetComponent<DefaultController>().enabled = true;
 			inSpecialMovement = false;
 		}
 	}
 
 	void OnTriggerEnter(Collider col){
-		print(col.gameObject.name);
+		//print(col.gameObject.name);
 
 		if(col.tag.Equals("SpecialMovementTrigger")){
 			specialMovementTrigger = col.gameObject;

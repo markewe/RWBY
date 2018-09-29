@@ -6,14 +6,26 @@ using UnityEngine;
 public class LadderClimbingController : APlayerController {
 
 	public GameObject ladder;
+	public GameObject ladderTrigger;
+	bool nearEnd;
 	float currentSpeed;
 	float climbSpeed = 2f;
 	float climbSpeedSmoothTime = 0.1f;
 	float inputZ;
 	float speedSmoothVelocity;
 	
+	public override void Init(){
+		base.Init();
+		nearEnd = false;
+	}
+
+	public override void Update(){
+		base.Update();
+
+	}
+
 	public override void HandleInputs(){
-		inputZ = Input.GetAxisRaw("Vertical");
+		inputZ = Input.GetAxis("Vertical");
 	}
 
 	public override void MovePlayer(){
@@ -32,17 +44,43 @@ public class LadderClimbingController : APlayerController {
 
 	public override void SetAnimations(){
 		animator.SetBool("IsClimbingLadder", true);
-		animator.SetInteger("InputZRaw", int.Parse(inputZ.ToString()));
+		animator.SetBool("NearLadderEnd", nearEnd);
+		animator.SetFloat("InputZ", inputZ);
+		//animator.SetInteger("InputZ", int.Parse(inputZ.ToString()));
 	}
 
+	void OnTriggerEnter(Collider col){
+		if(this.enabled && col.tag.Equals("SpecialMovementTrigger")){
+			var trigger = col.GetComponent<SpecialMovementTriggers>();
+
+			if(trigger.movementType.Equals("ladder")){
+				ladderTrigger = col.gameObject;				
+				nearEnd = true;
+			}
+		}
+	}
+
+	void OnTriggerExit(Collider col){
+		if(this.enabled && col.tag.Equals("SpecialMovementTrigger")){
+			var trigger = col.GetComponent<SpecialMovementTriggers>();
+			if(trigger.movementType.Equals("ladder")){
+				ladderTrigger = null;				
+				nearEnd = false;
+			}
+		}
+	}
+
+	#region animation events
+
 	void ClimbLadderStart(){
-		controller.detectCollisions = false;
 		animator.applyRootMotion = true;
 	}
 
 	void ClimbLadderEnd(){
 		animator.SetBool("IsClimbingLadder", false);
-		controller.detectCollisions = true;
 		animator.applyRootMotion = false;
+		GetComponent<PlayerControllerHandler>().ExitSpecialMovment("ladder");
 	}
+
+	#endregion
 }
