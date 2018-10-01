@@ -6,7 +6,7 @@ using UnityEngine;
 public class LadderClimbingController : APlayerController {
 
 	public GameObject ladder;
-	public GameObject ladderTrigger;
+	GameObject ladderTrigger;
 	bool nearEnd;
 	float currentSpeed;
 	float climbSpeed = 2f;

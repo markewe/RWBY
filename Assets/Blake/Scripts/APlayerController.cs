@@ -52,9 +52,11 @@ public abstract class APlayerController : MonoBehaviour {
 
 	void OnControllerColliderHit(ControllerColliderHit hit)
      {
-         Rigidbody body = hit.collider.attachedRigidbody;
-         if (body != null && !body.isKinematic)
-             body.velocity += hit.controller.velocity.normalized * 0.1f;
+		Rigidbody body = hit.collider.attachedRigidbody;
+		if (body != null && !body.isKinematic)
+		{
+			body.velocity += hit.controller.velocity.normalized * 0.1f;
+		}
      }
 
 	#endregion

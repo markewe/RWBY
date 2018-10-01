@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerControllerHandler : MonoBehaviour {
 	bool inSpecialMovement = false;
+	Animator animator;
 	GameObject specialMovementTrigger;
 	GameObject	mainCamera;
 	CameraController cameraController;
@@ -12,6 +13,7 @@ public class PlayerControllerHandler : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		GetComponent<DefaultController>().enabled = true;
+		animator = GetComponent<Animator>();
 		mainCamera = GameObject.Find("CameraObject");
 		cameraController = mainCamera.GetComponent<CameraController>();
 	}
@@ -19,9 +21,11 @@ public class PlayerControllerHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		var inputInteract = Input.GetButton("Interact");
+		//print(inputInteract);
 
 		if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
 			this.GetComponent<DefaultController>().enabled = false;
+			//print("Interacting");
 
 			switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
 				case "crawl":
@@ -32,6 +36,11 @@ public class PlayerControllerHandler : MonoBehaviour {
 					var lcc = GetComponent<LadderClimbingController>();
 					lcc.ladder = specialMovementTrigger;
 					lcc.enabled = true;
+				break;
+				case "pickup":
+					var hoc = GetComponent<HoldingObjectController>();
+					hoc.pickupObject = specialMovementTrigger.transform.parent.gameObject;
+					hoc.enabled = true;
 				break;
 			}
 
@@ -50,6 +59,9 @@ public class PlayerControllerHandler : MonoBehaviour {
 				case "ladder":
 					GetComponent<LadderClimbingController>().enabled = false;
 				break;
+				case "pickup":
+					GetComponent<HoldingObjectController>().enabled = false;
+				break;
 			}
 
 			GetComponent<DefaultController>().enabled = true;
@@ -58,7 +70,7 @@ public class PlayerControllerHandler : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider col){
-		//print(col.gameObject.name);
+		//print(col.gameObject.name + " Enter");
 
 		if(col.tag.Equals("SpecialMovementTrigger")){
 			specialMovementTrigger = col.gameObject;
@@ -66,6 +78,8 @@ public class PlayerControllerHandler : MonoBehaviour {
 	}
 
 	void OnTriggerExit(Collider col){
+		//print(col.gameObject.name + " Exit");
+
 		if(col.tag.Equals("SpecialMovementTrigger")){
 			specialMovementTrigger = null;
 		}
