@@ -18,7 +18,7 @@ public class DefaultController : APlayerController {
 	bool missedComboWindow = false;
 	float jumpHeight = 4f;
 	float walkSpeed = 2f;
-	float runSpeed = 8f;
+	float runSpeed = 6f;
 	float jumpSpeed = 1f;
 	float speedSmoothTime = 0.1f;
 	float jumpSmoothTime = 2f;
@@ -85,7 +85,7 @@ public class DefaultController : APlayerController {
 		var targetSpeed = walkSpeed * targetDirection.magnitude;
 		var smoothTime = speedSmoothTime;
 		
-		 if(isJumping){
+		if(isJumping){
 			smoothTime = jumpSmoothTime;
 			targetSpeed = jumpSpeed * targetDirection.magnitude;
 		}
@@ -99,13 +99,18 @@ public class DefaultController : APlayerController {
 		}
 		
 		// move
-		if(isDodging){
-			controller.Move(transform.forward * (runSpeed * dodgeDirection.magnitude) * Time.deltaTime);
-		}
-		else if(!isAttacking && !isDodging){
+		// if(isDodging){
+		// 	//controller.Move(transform.forward * (runSpeed * dodgeDirection.magnitude) * Time.deltaTime);
+			
+		// }
+		// else
+		if(!isAttacking && !isDodging){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 			Vector3 vel = transform.forward * currentSpeed + Vector3.up * velY;
 			controller.Move(vel * Time.deltaTime);
+		}
+		else{
+			animator.applyRootMotion = isAttacking | isDodging;
 		}
 
 		if(!controller.isGrounded && (isHanging || CheckForLedges())){
@@ -120,6 +125,8 @@ public class DefaultController : APlayerController {
 			velY = 0f;
 			isJumping = false;
 		}
+
+		print(controller.velocity);
 	}
 
 	public override void RotatePlayer(){
@@ -128,7 +135,7 @@ public class DefaultController : APlayerController {
 			var targetRotation = transform.eulerAngles.y;
 			
 			if(isAttacking){
-				targetRotation = Camera.main.transform.eulerAngles.y;
+				//targetRotation = Camera.main.transform.eulerAngles.y;
 			}
 			else if(isHanging){
 				targetRotation = TurnTowardsLedge();
