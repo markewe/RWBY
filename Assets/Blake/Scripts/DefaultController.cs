@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DefaultController : APlayerController {
 
 	public bool toggleRun = true;
+	public GameObject currentAttackTarget;
 	float inputX;
 	float inputZ;
 
@@ -15,6 +17,7 @@ public class DefaultController : APlayerController {
 	bool isAttacking = false;
 	bool isHanging = false;
 	bool isDodging = false;
+	bool isShooting = false;
 	bool missedComboWindow = false;
 	float jumpHeight = 4f;
 	float walkSpeed = 2f;
@@ -48,15 +51,24 @@ public class DefaultController : APlayerController {
 			isHanging = false;
 		}
 
+		// attacks
 		if(Input.GetButtonDown("Attack1") && !isJumping){
 			if(isAttacking && !missedComboWindow){
 				comboCounter++;
 			}
-			else if(!isAttacking){
+			else if(!isAttacking && !isShooting){
+				isShooting = false;
 				isAttacking = true;
 			}
 		}
+		else if(Input.GetButtonDown("Attack2") && !isJumping){
+			if(!isAttacking && !isShooting){
+				isAttacking = false;
+				isShooting = true;
+			}
+		}
 
+		// jump
 		if(Input.GetButtonDown("Jump") && (!isAttacking || isHanging || !isJumping || !isClimbingLedge)){
 			velY = Mathf.Sqrt(-2f * gravity * jumpHeight);
 			isHanging = false;
@@ -64,12 +76,14 @@ public class DefaultController : APlayerController {
 			isAttacking = false;
 		}
 
+		// dodge
 		if(Input.GetButtonDown("Dodge")) {
 			isDodging = true;
 			dodgeDirection = targetDirection;
 			dodgeRotation = Mathf.Atan2(dodgeDirection.x, dodgeDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
 		}
 
+		// run
 		if(!toggleRun){
 			isRunning = Input.GetButton("Run");
 		}
@@ -98,12 +112,6 @@ public class DefaultController : APlayerController {
 			targetSpeed = 0f;
 		}
 		
-		// move
-		// if(isDodging){
-		// 	//controller.Move(transform.forward * (runSpeed * dodgeDirection.magnitude) * Time.deltaTime);
-			
-		// }
-		// else
 		if(!isAttacking && !isDodging){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 			Vector3 vel = transform.forward * currentSpeed + Vector3.up * velY;
@@ -126,7 +134,7 @@ public class DefaultController : APlayerController {
 			isJumping = false;
 		}
 
-		print(controller.velocity);
+		//print(controller.velocity);
 	}
 
 	public override void RotatePlayer(){
@@ -134,8 +142,13 @@ public class DefaultController : APlayerController {
 		if(!isJumping && !isDodging){
 			var targetRotation = transform.eulerAngles.y;
 			
-			if(isAttacking){
-				//targetRotation = Camera.main.transform.eulerAngles.y;
+			if(isAttacking || isShooting){
+				currentAttackTarget = GetNearestEnemy();
+
+				if(currentAttackTarget != null){
+					targetRotation = Mathf.Atan2(currentAttackTarget.transform.position.x - transform.position.x
+						, currentAttackTarget.transform.position.z - transform.position.z) * Mathf.Rad2Deg;	
+				}
 			}
 			else if(isHanging){
 				targetRotation = TurnTowardsLedge();
@@ -147,9 +160,6 @@ public class DefaultController : APlayerController {
 			Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
 			transform.rotation = !isAttacking ? Quaternion.Slerp(transform.rotation, target,  Time.deltaTime * turnSmoothTime) : target;
 		}
-		else if (isDodging){
-			transform.rotation = Quaternion.Euler(Vector3.up * dodgeRotation);
-		}
 	}
 
 	public override void SetAnimations(){
@@ -158,6 +168,7 @@ public class DefaultController : APlayerController {
 		animator.SetBool("IsJumping", isJumping);
 		animator.SetFloat("VSpeed", velY);
 		animator.SetBool("IsAttacking", isAttacking);
+		animator.SetBool("IsShooting", isShooting);
 		animator.SetInteger("ComboCounter", comboCounter);
 		animator.SetBool("IsCrouching", isCrouching);
 		animator.SetBool("IsHanging", isHanging);
@@ -269,6 +280,38 @@ public class DefaultController : APlayerController {
 
 	#endregion
 
+	#region attacking functions
+
+	GameObject GetNearestEnemy(){
+		RaycastHit hit;
+		var raycastHitEnemies = new Dictionary<GameObject, float>();
+		var layerMask = 1 << 11; // only enemy layer
+		var rays = new Vector3[180/18];
+		var rayLength = 2f;
+		var degreeSlice = 18;
+
+		// check both ends and middle of hook for raycast
+		rays[0] = climbHook.transform.position;
+
+		/// ray cast 180 degrees in front of player and return nearest enemy
+		for(var i=0; i<=180/degreeSlice; i++){
+			var raycastCheck = Physics.Raycast(transform.position, Quaternion.Euler(0, degreeSlice * i, 0) * (transform.right * -1f), out hit, rayLength, layerMask);
+
+			if(raycastCheck && !raycastHitEnemies.Keys.Contains(hit.collider.gameObject)){
+				raycastHitEnemies.Add(hit.collider.gameObject, hit.distance);
+				// print("Enemy Found " + hit.collider.gameObject.name);
+				// print("AT distance " + hit.distance);
+			}
+		}
+
+		// order found enemies by distance
+
+		return raycastHitEnemies.Count > 0 
+			? raycastHitEnemies.OrderBy(x => x.Value).First().Key : null;
+	}
+
+	#endregion
+
 	#region calculation helper functions
 
 	float NormalizeAngle (float angle){
@@ -287,18 +330,13 @@ public class DefaultController : APlayerController {
 
 	#region debugging
 	void OnDrawGizmos() {
-		// var rayDown =  -1 * Vector3.up;
-		// var climbCollider = climbHook.GetComponent<MeshFilter>(); 
-
          Gizmos.color = Color.red;
-         //Gizmos.DrawRay(climbHook.transform.position, rayDown);
-		// Gizmos.DrawRay(climbHook.transform.position + (climbCollider.sharedMesh.bounds.size.x / 40f) * Vector3.left, rayDown);
-		// Gizmos.DrawRay(climbHook.transform.position + (climbCollider.sharedMesh.bounds.size.x / 40f) * Vector3.right, rayDown);
+		 var degreeSlice = 18;
+         //Gizmos.DrawRay(transform.position, Quaternion.Euler(0, degreeSlice * i, 0) * transform.forward);
 
-		// if(specialMovementTrigger != null)
-		// 	Gizmos.DrawRay(specialMovementTrigger.transform.position, specialMovementTrigger.transform.forward * 5);
-
-		//print ("Gizmos");
+		 for(var i=0; i<=180/degreeSlice; i++){
+			Gizmos.DrawRay(transform.position, (Quaternion.Euler(0, degreeSlice * i, 0) * (transform.right * -1f)) * 2f);
+		}
     }
 
 	#endregion
