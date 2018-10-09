@@ -18,6 +18,8 @@ public class DefaultController : APlayerController {
 	bool isHanging = false;
 	bool isDodging = false;
 	bool isShooting = false;
+	float meleeRange = 2f;
+	float shootingRange = 30f;
 	bool missedComboWindow = false;
 	float jumpHeight = 4f;
 	float walkSpeed = 2f;
@@ -56,13 +58,13 @@ public class DefaultController : APlayerController {
 			if(isAttacking && !missedComboWindow){
 				comboCounter++;
 			}
-			else if(!isAttacking && !isShooting){
+			else if(!isAttacking){
 				isShooting = false;
 				isAttacking = true;
 			}
 		}
 		else if(Input.GetButtonDown("Attack2") && !isJumping){
-			if(!isAttacking && !isShooting){
+			if(!isShooting){
 				isAttacking = false;
 				isShooting = true;
 			}
@@ -143,11 +145,14 @@ public class DefaultController : APlayerController {
 			var targetRotation = transform.eulerAngles.y;
 			
 			if(isAttacking || isShooting){
-				currentAttackTarget = GetNearestEnemy();
+				currentAttackTarget = GetNearestEnemy(isAttacking ? meleeRange : shootingRange);
 
 				if(currentAttackTarget != null){
 					targetRotation = Mathf.Atan2(currentAttackTarget.transform.position.x - transform.position.x
 						, currentAttackTarget.transform.position.z - transform.position.z) * Mathf.Rad2Deg;	
+				}
+				else{
+					targetRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;	
 				}
 			}
 			else if(isHanging){
@@ -175,6 +180,8 @@ public class DefaultController : APlayerController {
 		animator.SetFloat("InputX", inputX);
 		animator.SetFloat("InputZ", inputZ);
 		animator.SetBool("IsDodging", isDodging);
+
+		
 	}
 
 	public override void SetHitbox(){
@@ -282,12 +289,15 @@ public class DefaultController : APlayerController {
 
 	#region attacking functions
 
-	GameObject GetNearestEnemy(){
+	void ShootProjectile(){
+		playerWeapon.GetComponent<DefaultWeaponController>();
+	}
+
+	GameObject GetNearestEnemy(float rayLength){
 		RaycastHit hit;
 		var raycastHitEnemies = new Dictionary<GameObject, float>();
 		var layerMask = 1 << 11; // only enemy layer
 		var rays = new Vector3[180/18];
-		var rayLength = 2f;
 		var degreeSlice = 18;
 
 		// check both ends and middle of hook for raycast
