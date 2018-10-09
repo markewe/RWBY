@@ -9,7 +9,8 @@ public class DefaultController : APlayerController {
 	public GameObject currentAttackTarget;
 	float inputX;
 	float inputZ;
-
+	float fireRate = 0.5F;
+	float nextFire = 0.0F;
 	bool isClimbingLedge = false;
 	bool isCrouching = false;
 	bool isRunning = true;
@@ -18,6 +19,7 @@ public class DefaultController : APlayerController {
 	bool isHanging = false;
 	bool isDodging = false;
 	bool isShooting = false;
+	bool shootProjectile = false;
 	float meleeRange = 2f;
 	float shootingRange = 30f;
 	bool missedComboWindow = false;
@@ -43,6 +45,7 @@ public class DefaultController : APlayerController {
 	#region APlayerController functions
 
 	public override void HandleInputs(){
+		shootProjectile = false;
 		inputX = !isHanging ? Input.GetAxis("Horizontal") : 0f;
 		inputZ = Input.GetAxis("Vertical");
 		isCrouching = Input.GetButton("Crouch") & !isJumping;
@@ -64,9 +67,13 @@ public class DefaultController : APlayerController {
 			}
 		}
 		else if(Input.GetButtonDown("Attack2") && !isJumping){
-			if(!isShooting){
+			if (isShooting){
+				shootProjectile = true;
+			}
+			else if(!isShooting){
 				isAttacking = false;
 				isShooting = true;
+				shootProjectile = true;
 			}
 		}
 
@@ -181,6 +188,12 @@ public class DefaultController : APlayerController {
 		animator.SetFloat("InputZ", inputZ);
 		animator.SetBool("IsDodging", isDodging);
 
+		// alert children
+		if (shootProjectile && Time.time > nextFire) 
+		{
+			nextFire = Time.time + fireRate;
+			playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+		}
 		
 	}
 
