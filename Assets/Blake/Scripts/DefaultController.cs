@@ -18,7 +18,7 @@ public class DefaultController : APlayerController {
 	bool isAttacking = false;
 	bool isHanging = false;
 	bool isDodging = false;
-	bool isShooting = false;
+	bool isAimingGun = false;
 	bool shootProjectile = false;
 	float meleeRange = 2f;
 	float shootingRange = 30f;
@@ -62,17 +62,17 @@ public class DefaultController : APlayerController {
 				comboCounter++;
 			}
 			else if(!isAttacking){
-				isShooting = false;
+				isAimingGun = false;
 				isAttacking = true;
 			}
 		}
 		else if(Input.GetButtonDown("Attack2") && !isJumping){
-			if (isShooting){
+			if (isAimingGun){
 				shootProjectile = true;
 			}
-			else if(!isShooting){
+			else if(!isAimingGun){
 				isAttacking = false;
-				isShooting = true;
+				isAimingGun = true;
 				shootProjectile = true;
 			}
 		}
@@ -123,7 +123,13 @@ public class DefaultController : APlayerController {
 		
 		if(!isAttacking && !isDodging){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
-			Vector3 vel = transform.forward * currentSpeed + Vector3.up * velY;
+			Vector3 vel = !isAimingGun ? transform.forward * currentSpeed + Vector3.up * velY
+				: (Camera.main.transform.forward * currentSpeed * inputZ) + (Camera.main.transform.right * currentSpeed * inputX);
+
+			if(isAimingGun){
+				vel.y = 0f;
+			}
+
 			controller.Move(vel * Time.deltaTime);
 		}
 		else{
@@ -136,7 +142,7 @@ public class DefaultController : APlayerController {
 			isHanging = true;
 		}
 		else if(!controller.isGrounded){
-			velY += Time.deltaTime * gravity;
+			//velY += Time.deltaTime * gravity;
 		}
 		else if(controller.isGrounded){
 			velY = 0f;
@@ -151,15 +157,12 @@ public class DefaultController : APlayerController {
 		if(!isJumping && !isDodging){
 			var targetRotation = transform.eulerAngles.y;
 			
-			if(isAttacking || isShooting){
+			if(isAttacking || isAimingGun){
 				currentAttackTarget = GetNearestEnemy(isAttacking ? meleeRange : shootingRange);
 
 				if(currentAttackTarget != null){
 					targetRotation = Mathf.Atan2(currentAttackTarget.transform.position.x - transform.position.x
 						, currentAttackTarget.transform.position.z - transform.position.z) * Mathf.Rad2Deg;	
-				}
-				else{
-					targetRotation = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;	
 				}
 			}
 			else if(isHanging){
@@ -180,7 +183,7 @@ public class DefaultController : APlayerController {
 		animator.SetBool("IsJumping", isJumping);
 		animator.SetFloat("VSpeed", velY);
 		animator.SetBool("IsAttacking", isAttacking);
-		animator.SetBool("IsShooting", isShooting);
+		animator.SetBool("IsAimingGun", isAimingGun);
 		animator.SetInteger("ComboCounter", comboCounter);
 		animator.SetBool("IsCrouching", isCrouching);
 		animator.SetBool("IsHanging", isHanging);
@@ -192,7 +195,7 @@ public class DefaultController : APlayerController {
 		if (shootProjectile && Time.time > nextFire) 
 		{
 			nextFire = Time.time + fireRate;
-			playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+			//playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
 		}
 		
 	}
