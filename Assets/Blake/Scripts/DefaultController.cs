@@ -9,8 +9,10 @@ public class DefaultController : APlayerController {
 	public GameObject currentAttackTarget;
 	float inputX;
 	float inputZ;
-	float fireRate = 0.5F;
+	float fireRate = 0.1F;
 	float nextFire = 0.0F;
+	float fireTimeoutRate = 1f;
+	float nextFireTimeout = 0;
 	bool isClimbingLedge = false;
 	bool isCrouching = false;
 	bool isRunning = true;
@@ -36,6 +38,7 @@ public class DefaultController : APlayerController {
 	int comboCounter = 0;
 	Vector3 targetDirection;
 	Vector3 dodgeDirection;
+	Vector3 vel;
 	float dodgeRotation;
 	static float gravity = -9.8f;
 	public GameObject playerWeapon;
@@ -123,7 +126,7 @@ public class DefaultController : APlayerController {
 		
 		if(!isAttacking && !isDodging){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
-			Vector3 vel = !isAimingGun ? transform.forward * currentSpeed + Vector3.up * velY
+			vel = !isAimingGun ? transform.forward * currentSpeed + Vector3.up * velY
 				: (Camera.main.transform.forward * currentSpeed * inputZ) + (Camera.main.transform.right * currentSpeed * inputX);
 
 			if(isAimingGun){
@@ -142,7 +145,7 @@ public class DefaultController : APlayerController {
 			isHanging = true;
 		}
 		else if(!controller.isGrounded){
-			//velY += Time.deltaTime * gravity;
+			velY += Time.deltaTime * gravity;
 		}
 		else if(controller.isGrounded){
 			velY = 0f;
@@ -189,13 +192,19 @@ public class DefaultController : APlayerController {
 		animator.SetBool("IsHanging", isHanging);
 		animator.SetFloat("InputX", inputX);
 		animator.SetFloat("InputZ", inputZ);
+		animator.SetFloat("HSpeedX", inputX * currentSpeed);
+		animator.SetFloat("HSpeedZ", inputZ * currentSpeed);
 		animator.SetBool("IsDodging", isDodging);
 
 		// alert children
 		if (shootProjectile && Time.time > nextFire) 
 		{
 			nextFire = Time.time + fireRate;
+			nextFireTimeout = Time.time + fireTimeoutRate;
 			//playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+		}
+		else if(Time.time > nextFireTimeout){
+			isAimingGun = false;
 		}
 		
 	}
