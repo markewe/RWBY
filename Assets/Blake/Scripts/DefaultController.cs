@@ -9,6 +9,8 @@ public class DefaultController : APlayerController {
 	public GameObject currentAttackTarget;
 	float inputX;
 	float inputZ;
+	bool buttonAttack1;
+	bool buttonAttack2;
 	float fireRate = 0.1F;
 	float nextFire = 0.0F;
 	float fireTimeoutRate = 1f;
@@ -51,6 +53,8 @@ public class DefaultController : APlayerController {
 		shootProjectile = false;
 		inputX = !isHanging ? Input.GetAxis("Horizontal") : 0f;
 		inputZ = Input.GetAxis("Vertical");
+		buttonAttack1 = Input.GetButtonDown("Attack1");
+		buttonAttack2 = Input.GetButtonDown("Attack2");
 		isCrouching = Input.GetButton("Crouch") & !isJumping;
 
 		targetDirection = new Vector3(inputX, 0f, inputZ);
@@ -60,7 +64,7 @@ public class DefaultController : APlayerController {
 		}
 
 		// attacks
-		if(Input.GetButtonDown("Attack1") && !isJumping){
+		if(buttonAttack1 && !isJumping){
 			if(isAttacking && !missedComboWindow){
 				comboCounter++;
 			}
@@ -69,7 +73,7 @@ public class DefaultController : APlayerController {
 				isAttacking = true;
 			}
 		}
-		else if(Input.GetButtonDown("Attack2") && !isJumping){
+		else if(buttonAttack2 && !isJumping){
 			if (isAimingGun){
 				shootProjectile = true;
 			}
@@ -161,7 +165,8 @@ public class DefaultController : APlayerController {
 			var targetRotation = transform.eulerAngles.y;
 			
 			if(isAttacking || isAimingGun){
-				currentAttackTarget = GetNearestEnemy(isAttacking ? meleeRange : shootingRange);
+				currentAttackTarget = (buttonAttack1 || buttonAttack2)
+					&& currentAttackTarget == null ? GetNearestEnemy(isAttacking ? meleeRange : shootingRange) : currentAttackTarget;
 
 				if(currentAttackTarget != null){
 					targetRotation = Mathf.Atan2(currentAttackTarget.transform.position.x - transform.position.x
@@ -201,12 +206,11 @@ public class DefaultController : APlayerController {
 		{
 			nextFire = Time.time + fireRate;
 			nextFireTimeout = Time.time + fireTimeoutRate;
-			//playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+			playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
 		}
 		else if(Time.time > nextFireTimeout){
 			isAimingGun = false;
 		}
-		
 	}
 
 	public override void SetHitbox(){
@@ -322,8 +326,9 @@ public class DefaultController : APlayerController {
 		RaycastHit hit;
 		var raycastHitEnemies = new Dictionary<GameObject, float>();
 		var layerMask = 1 << 11; // only enemy layer
-		var rays = new Vector3[180/18];
-		var degreeSlice = 18;
+		var degreeSlice = 2;
+		var rays = new Vector3[180/degreeSlice];
+		
 
 		// check both ends and middle of hook for raycast
 		rays[0] = climbHook.transform.position;
@@ -366,7 +371,7 @@ public class DefaultController : APlayerController {
 	#region debugging
 	void OnDrawGizmos() {
          Gizmos.color = Color.red;
-		 var degreeSlice = 18;
+		 var degreeSlice = 5;
          //Gizmos.DrawRay(transform.position, Quaternion.Euler(0, degreeSlice * i, 0) * transform.forward);
 
 		 for(var i=0; i<=180/degreeSlice; i++){

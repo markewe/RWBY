@@ -154,9 +154,10 @@ public class HoldingObjectController : APlayerController {
 
 	public void ObjectThrowLetGo(){
 		pickupObject.transform.parent = null;
-		pickupObject.GetComponent<Rigidbody>().velocity += (controller.velocity.normalized * 5f) + (Vector3.up * 5f);
-		pickupObject.GetComponent<Rigidbody>().useGravity = true;
-		pickupObject.GetComponent<Rigidbody>().detectCollisions = true;
+		var pickupObjectRB = pickupObject.GetComponent<Rigidbody>();
+		pickupObjectRB.velocity += (controller.velocity.normalized * 5f) + (Vector3.up * 5f);
+		pickupObjectRB.useGravity = true;
+		pickupObjectRB.detectCollisions = true;
 	}
 
 	#endregion
