@@ -11,6 +11,8 @@ public class DefaultController : APlayerController {
 	float inputZ;
 	bool buttonAttack1;
 	bool buttonAttack2;
+	bool buttonSemblance;
+	bool buttonDodge;
 	float fireRate = 0.1F;
 	float nextFire = 0.0F;
 	float fireTimeoutRate = 1f;
@@ -23,13 +25,14 @@ public class DefaultController : APlayerController {
 	bool isHanging = false;
 	bool isDodging = false;
 	bool isAimingGun = false;
+	bool isUsingSemblance = false;
 	bool shootProjectile = false;
-	float meleeRange = 2f;
-	float shootingRange = 30f;
+	float meleeRange = 5f;
+	float shootingRange = 15f;
 	bool missedComboWindow = false;
 	float jumpHeight = 4f;
 	float walkSpeed = 2f;
-	float runSpeed = 6f;
+	float runSpeed = 5f;
 	float jumpSpeed = 1f;
 	float speedSmoothTime = 0.1f;
 	float jumpSmoothTime = 2f;
@@ -50,6 +53,8 @@ public class DefaultController : APlayerController {
 	#region APlayerController functions
 
 	public override void HandleInputs(){
+		buttonSemblance = Input.GetButtonDown("Semblance");
+		buttonDodge = Input.GetButtonDown("Dodge");
 		shootProjectile = false;
 		inputX = !isHanging ? Input.GetAxis("Horizontal") : 0f;
 		inputZ = Input.GetAxis("Vertical");
@@ -57,7 +62,7 @@ public class DefaultController : APlayerController {
 		buttonAttack2 = Input.GetButtonDown("Attack2");
 		isCrouching = Input.GetButton("Crouch") & !isJumping;
 
-		targetDirection = new Vector3(inputX, 0f, inputZ);
+		targetDirection = new Vector3(inputX, 0f, inputZ).normalized;
 
 		if(inputZ < 0f && isHanging && !isClimbingLedge){
 			isHanging = false;
@@ -99,6 +104,11 @@ public class DefaultController : APlayerController {
 			dodgeRotation = Mathf.Atan2(dodgeDirection.x, dodgeDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
 		}
 
+		// semblance
+		if(Input.GetButtonDown("Semblance")) {
+			isUsingSemblance = true;
+		}
+
 		// run
 		if(!toggleRun){
 			isRunning = Input.GetButton("Run");
@@ -128,7 +138,7 @@ public class DefaultController : APlayerController {
 			targetSpeed = 0f;
 		}
 		
-		if(!isAttacking && !isDodging){
+		if(!isAttacking && !isDodging && !isUsingSemblance){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 			vel = !isAimingGun ? transform.forward * currentSpeed + Vector3.up * velY
 				: (Camera.main.transform.forward * currentSpeed * inputZ) + (Camera.main.transform.right * currentSpeed * inputX);
@@ -137,10 +147,12 @@ public class DefaultController : APlayerController {
 				vel.y = 0f;
 			}
 
+			//print(vel.magnitude);
+			animator.applyRootMotion = false;
 			controller.Move(vel * Time.deltaTime);
 		}
 		else{
-			animator.applyRootMotion = isAttacking | isDodging;
+			animator.applyRootMotion = true;// = isAttacking | isDodging | isUsingSemblance;
 		}
 
 		if(!controller.isGrounded && (isHanging || CheckForLedges())){
@@ -157,16 +169,17 @@ public class DefaultController : APlayerController {
 		}
 
 		//print(controller.velocity);
+		print(animator.applyRootMotion);
 	}
 
 	public override void RotatePlayer(){
 		// turn slowly based on camera's forward
-		if(!isJumping && !isDodging){
+		if(!isJumping && !isDodging && !isUsingSemblance){
 			var targetRotation = transform.eulerAngles.y;
 			
 			if(isAttacking || isAimingGun){
-				currentAttackTarget = (buttonAttack1 || buttonAttack2)
-					&& currentAttackTarget == null ? GetNearestEnemy(isAttacking ? meleeRange : shootingRange) : currentAttackTarget;
+				currentAttackTarget = (buttonAttack1 || buttonAttack2) 
+					? GetNearestEnemy(isAttacking ? meleeRange : shootingRange) : currentAttackTarget;
 
 				if(currentAttackTarget != null){
 					targetRotation = Mathf.Atan2(currentAttackTarget.transform.position.x - transform.position.x
@@ -182,6 +195,9 @@ public class DefaultController : APlayerController {
 
 			Quaternion target = Quaternion.Euler(Vector3.up * targetRotation);
 			transform.rotation = !isAttacking ? Quaternion.Slerp(transform.rotation, target,  Time.deltaTime * turnSmoothTime) : target;
+		}
+		else if(isDodging){
+			transform.rotation = Quaternion.Euler(Vector3.up * dodgeRotation);
 		}
 	}
 
@@ -200,6 +216,7 @@ public class DefaultController : APlayerController {
 		animator.SetFloat("HSpeedX", inputX * currentSpeed);
 		animator.SetFloat("HSpeedZ", inputZ * currentSpeed);
 		animator.SetBool("IsDodging", isDodging);
+		animator.SetBool("IsUsingSemblance", isUsingSemblance);
 
 		// alert children
 		if (shootProjectile && Time.time > nextFire) 
@@ -210,6 +227,10 @@ public class DefaultController : APlayerController {
 		}
 		else if(Time.time > nextFireTimeout){
 			isAimingGun = false;
+		}
+
+		if(buttonSemblance){
+			CreateClone();
 		}
 	}
 
@@ -245,6 +266,18 @@ public class DefaultController : APlayerController {
 		isDodging = false;
 		dodgeDirection = Vector3.zero;
 		dodgeRotation = 0f;
+	}
+
+	void EndSemblance(){
+		isUsingSemblance = false;
+	}
+
+	#endregion
+
+	#region semblance functions
+
+	void CreateClone(){
+		var projectile = Instantiate(GameObject.Find("BlakeClone"), transform.position, Quaternion.identity);
 	}
 
 	#endregion
@@ -344,10 +377,15 @@ public class DefaultController : APlayerController {
 			}
 		}
 
-		// order found enemies by distance
-
-		return raycastHitEnemies.Count > 0 
-			? raycastHitEnemies.OrderBy(x => x.Value).First().Key : null;
+		// if player already has a target, don't switch
+		// else return the closest enemy
+		if(currentAttackTarget != null && raycastHitEnemies.ContainsKey(currentAttackTarget)){
+			return currentAttackTarget;
+		}
+		else{
+			return raycastHitEnemies.Count > 0 
+				? raycastHitEnemies.OrderBy(x => x.Value).First().Key : null;
+		}
 	}
 
 	#endregion
