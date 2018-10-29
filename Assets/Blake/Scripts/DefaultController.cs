@@ -169,7 +169,7 @@ public class DefaultController : APlayerController {
 		}
 
 		//print(controller.velocity);
-		print(animator.applyRootMotion);
+		//print(animator.applyRootMotion);
 	}
 
 	public override void RotatePlayer(){
@@ -277,7 +277,8 @@ public class DefaultController : APlayerController {
 	#region semblance functions
 
 	void CreateClone(){
-		var projectile = Instantiate(GameObject.Find("BlakeClone"), transform.position, Quaternion.identity);
+		var clone = Instantiate(GameObject.Find("BlakeCloneEarth"), transform.position, Quaternion.identity);
+		clone.GetComponent<ACloneController>().enabled = true;
 	}
 
 	#endregion

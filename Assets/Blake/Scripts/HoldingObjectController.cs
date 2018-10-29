@@ -100,7 +100,7 @@ public class HoldingObjectController : APlayerController {
 		//pickupObject.transform.parent = GameObject.Find("Blake").transform;
 		pickupObject.transform.parent = GameObject.Find("Blake/Armature/root ground/root hips/spine root/spine/arm right shoulder 1/arm right shoulder 2/arm right elbow/arm right wrist/pickup holder").transform;
 		pickupObject.GetComponent<Rigidbody>().useGravity = false;
-		pickupObject.transform.localPosition = Vector3.zero;
+		pickupObject.transform.localPosition = new Vector3(0.004f, 0.001f, -0.003f);//Vector3.zero;
 		pickupObject.transform.rotation = Quaternion.identity;
 	}
 
