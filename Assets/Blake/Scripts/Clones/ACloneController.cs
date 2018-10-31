@@ -56,9 +56,17 @@ public abstract class ACloneController : MonoBehaviour {
 		MovePlayer();
 		SetAnimations();
 
-		if(Time.time > despawnTime){
+		if(lifeSpan > 0 && Time.time > despawnTime){
 			Destroy(this.gameObject);
 		}
+	}
+
+	#endregion
+
+	#region debugging
+
+	public void StopAttack(){
+
 	}
 
 	#endregion

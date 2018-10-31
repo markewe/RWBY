@@ -13,9 +13,9 @@ public class CloneEarthController : ACloneController {
 	}
 
 	public override void MovePlayer(){
-		if(transform.position != targetPos){
-			transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed);
-		}
+		// if(transform.position != targetPos){
+		// 	transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed);
+		// }
 	}
 
 	public override void RotatePlayer(){}
@@ -35,9 +35,9 @@ public class CloneEarthController : ACloneController {
 	#region collision events
 
 	void OnTriggerEnter(Collider col){
-		if(transform.position == targetPos){
-			targetPos = transform.position + new Vector3(0, 0, 1);
-		}
+		//if(transform.position == targetPos){
+			//targetPos = transform.position + new Vector3(0, 0, 1);
+		//}
 	}
 
 	#endregion
