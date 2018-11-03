@@ -26,6 +26,7 @@ public abstract class ACloneController : MonoBehaviour {
 	public abstract void RotatePlayer();
 
 	public abstract void SetAnimations();
+	public abstract void DestroyPostCallback();
 
 	public abstract void SetHitbox();
 
@@ -58,6 +59,7 @@ public abstract class ACloneController : MonoBehaviour {
 
 		if(lifeSpan > 0 && Time.time > despawnTime){
 			Destroy(this.gameObject);
+			DestroyPostCallback();
 		}
 	}
 

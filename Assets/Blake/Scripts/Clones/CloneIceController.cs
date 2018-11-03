@@ -20,12 +20,21 @@ public class CloneIceController : ACloneController {
 
 	public override void SetHitbox(){}
 
+	public override void DestroyPostCallback(){
+		
+	}
+
 	#endregion
 
 	#region collision events
 
 	void OnTriggerEnter(Collider col){
+		// destroy the game object
 		Destroy(this.gameObject);
+
+		// create ice explosion
+
+		// freeze objects in explosion
 		FreezeObjects();
 	}
 

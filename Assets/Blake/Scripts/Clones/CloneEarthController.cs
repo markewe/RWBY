@@ -4,18 +4,16 @@ using UnityEngine;
 
 public class CloneEarthController : ACloneController {
 
-	public float moveSpeed;
-	Vector3 targetPos;
+	public GameObject brokenVersion;
+
+	#region ACloneController functions
 
 	public override void Init(){
 		base.Init();
-		targetPos = transform.position;
 	}
 
 	public override void MovePlayer(){
-		// if(transform.position != targetPos){
-		// 	transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed);
-		// }
+		
 	}
 
 	public override void RotatePlayer(){}
@@ -23,6 +21,12 @@ public class CloneEarthController : ACloneController {
 	public override void SetAnimations(){}
 
 	public override void SetHitbox(){}
+
+	public override void DestroyPostCallback(){
+		Instantiate(brokenVersion, transform.position, transform.rotation);
+	}
+
+	#endregion
 
 	#region animation events
 
@@ -35,9 +39,7 @@ public class CloneEarthController : ACloneController {
 	#region collision events
 
 	void OnTriggerEnter(Collider col){
-		//if(transform.position == targetPos){
-			//targetPos = transform.position + new Vector3(0, 0, 1);
-		//}
+		
 	}
 
 	#endregion

@@ -86,6 +86,8 @@ public class HoldingObjectController : APlayerController {
 		animator.SetBool("ObjectSetDown", inSetDown);
 	}
 
+	public override void PostEvents(){}
+
 	public override void SetHitbox(){
 		controller.height = 1.7f;
 		controller.center = new Vector3(0f,  1.7f / 2f, 0f);

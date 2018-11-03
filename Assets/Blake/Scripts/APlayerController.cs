@@ -19,6 +19,7 @@ public abstract class APlayerController : MonoBehaviour {
 	public abstract void SetAnimations();
 
 	public abstract void SetHitbox();
+	public abstract void PostEvents();
 
 	public virtual void Init(){
 		controller = GetComponent<CharacterController>();
@@ -44,6 +45,7 @@ public abstract class APlayerController : MonoBehaviour {
 		RotatePlayer();
 		MovePlayer();
 		SetAnimations();
+		PostEvents();
 	}
 
 	#endregion

@@ -13,10 +13,13 @@ public class DefaultController : APlayerController {
 	bool buttonAttack2;
 	bool buttonSemblance;
 	bool buttonDodge;
+	bool ignoreCollisions = false;
+	float cloneLifeSpan = 10f;
 	float fireRate = 0.1F;
 	float nextFire = 0.0F;
 	float fireTimeoutRate = 1f;
 	float nextFireTimeout = 0;
+	float playerMass = 1.5f;
 	bool isClimbingLedge = false;
 	bool isCrouching = false;
 	bool isRunning = true;
@@ -40,6 +43,7 @@ public class DefaultController : APlayerController {
 	float speedSmoothVelocity;
 	float turnSmoothTime = 10f;
 	float velY;
+	GameObject clone;
 	int comboCounter = 0;
 	Vector3 targetDirection;
 	Vector3 dodgeDirection;
@@ -53,7 +57,7 @@ public class DefaultController : APlayerController {
 	#region APlayerController functions
 
 	public override void HandleInputs(){
-		buttonSemblance = Input.GetButtonDown("Semblance");
+		buttonSemblance = clone == null ? Input.GetButtonDown("Semblance"): false;
 		buttonDodge = Input.GetButtonDown("Dodge");
 		shootProjectile = false;
 		inputX = !isHanging ? Input.GetAxis("Horizontal") : 0f;
@@ -105,7 +109,7 @@ public class DefaultController : APlayerController {
 		}
 
 		// semblance
-		if(Input.GetButtonDown("Semblance")) {
+		if(buttonSemblance) {
 			isUsingSemblance = true;
 		}
 
@@ -126,7 +130,7 @@ public class DefaultController : APlayerController {
 		var smoothTime = speedSmoothTime;
 		
 		if(isJumping){
-			smoothTime = jumpSmoothTime;
+			smoothTime = new Vector3(vel.x, 0f, vel.z).magnitude > jumpSpeed ? jumpSmoothTime : speedSmoothTime;
 			targetSpeed = jumpSpeed * targetDirection.magnitude;
 		}
 		else if(isRunning && !isCrouching){
@@ -137,22 +141,27 @@ public class DefaultController : APlayerController {
 			smoothTime = 0f;
 			targetSpeed = 0f;
 		}
+
+		//print(targetSpeed);
+		//print(smoothTime);
 		
 		if(!isAttacking && !isDodging && !isUsingSemblance){
 			currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 			vel = !isAimingGun ? transform.forward * currentSpeed + Vector3.up * velY
 				: (Camera.main.transform.forward * currentSpeed * inputZ) + (Camera.main.transform.right * currentSpeed * inputX);
 
+			// weird animation glitch
 			if(isAimingGun){
 				vel.y = 0f;
 			}
 
+			//print(vel);
 			//print(vel.magnitude);
 			animator.applyRootMotion = false;
 			controller.Move(vel * Time.deltaTime);
 		}
 		else{
-			animator.applyRootMotion = true;// = isAttacking | isDodging | isUsingSemblance;
+			animator.applyRootMotion = true;
 		}
 
 		if(!controller.isGrounded && (isHanging || CheckForLedges())){
@@ -161,7 +170,7 @@ public class DefaultController : APlayerController {
 			isHanging = true;
 		}
 		else if(!controller.isGrounded){
-			velY += Time.deltaTime * gravity;
+			velY += Time.deltaTime * gravity * playerMass;
 		}
 		else if(controller.isGrounded){
 			velY = 0f;
@@ -218,6 +227,10 @@ public class DefaultController : APlayerController {
 		animator.SetBool("IsDodging", isDodging);
 		animator.SetBool("IsUsingSemblance", isUsingSemblance);
 
+		
+	}
+
+	public override void PostEvents(){
 		// alert children
 		if (shootProjectile && Time.time > nextFire) 
 		{
@@ -230,8 +243,16 @@ public class DefaultController : APlayerController {
 		}
 
 		if(buttonSemblance){
-			CreateClone();
+			CreateClone("earth");
 		}
+
+		if(isUsingSemblance){
+			Physics.IgnoreCollision(controller, clone.GetComponent<Collider>());
+		}
+		else if (!isUsingSemblance && clone != null){
+			Physics.IgnoreCollision(controller, clone.GetComponent<Collider>(), false);
+		}
+		
 	}
 
 	public override void SetHitbox(){
@@ -276,8 +297,9 @@ public class DefaultController : APlayerController {
 
 	#region semblance functions
 
-	void CreateClone(){
-		var clone = Instantiate(GameObject.Find("BlakeCloneEarth"), transform.position, Quaternion.identity);
+	void CreateClone(string type){
+		clone = Instantiate(GameObject.Find("BlakeCloneEarth"), transform.position, transform.rotation);
+		clone.GetComponent<ACloneController>().lifeSpan = cloneLifeSpan;
 		clone.GetComponent<ACloneController>().enabled = true;
 	}
 

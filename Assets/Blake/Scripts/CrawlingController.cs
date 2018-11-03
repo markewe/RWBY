@@ -49,6 +49,8 @@ public class CrawlingController : APlayerController {
 		controller.center = new Vector3(0f,  0.5f / 2f, 0f) + hitboxPosition;
 	}
 
+	public override void PostEvents(){}
+
 	void OnTriggerEnter(Collider col){
 		if(this.enabled && col.tag.Equals("SpecialMovementTrigger")){
 			if(col.GetComponent<SpecialMovementTriggers>().movementType.Equals("crawl")){

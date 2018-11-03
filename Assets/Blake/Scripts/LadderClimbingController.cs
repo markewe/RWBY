@@ -42,6 +42,8 @@ public class LadderClimbingController : APlayerController {
 
 	}
 
+	public override void PostEvents(){}
+
 	public override void SetAnimations(){
 		animator.SetBool("IsClimbingLadder", true);
 		animator.SetBool("NearLadderEnd", nearEnd);
