@@ -4,13 +4,6 @@ using UnityEngine;
 
 public abstract class ACloneController : MonoBehaviour {
 	
-	#region components	
-
-	public Animator animator;
-	public CharacterController controller;
-
-	#endregion
-
 	#region variables
 
 	float despawnTime;
@@ -19,23 +12,7 @@ public abstract class ACloneController : MonoBehaviour {
 
 	#endregion
 
-	#region functions
-
-	public abstract void MovePlayer();
-
-	public abstract void RotatePlayer();
-
-	public abstract void SetAnimations();
-	public abstract void DestroyPostCallback();
-
-	public abstract void SetHitbox();
-
-	#endregion
-
 	public virtual void Init(){
-		controller = GetComponent<CharacterController>();
-		animator = GetComponent<Animator>();
-		SetHitbox();
 		despawnTime = Time.time + lifeSpan;
 	}
 
@@ -53,23 +30,18 @@ public abstract class ACloneController : MonoBehaviour {
 	}
 
 	public virtual void Update(){
-		RotatePlayer();
-		MovePlayer();
-		SetAnimations();
-
 		if(lifeSpan > 0 && Time.time > despawnTime){
-			Destroy(this.gameObject);
-			DestroyPostCallback();
+			Despawn();
 		}
+	}
+
+	public virtual void Despawn(){
+		Destroy(this.gameObject);
 	}
 
 	#endregion
 
 	#region debugging
-
-	public void StopAttack(){
-
-	}
 
 	#endregion
 }

@@ -12,26 +12,9 @@ public class CloneEarthController : ACloneController {
 		base.Init();
 	}
 
-	public override void MovePlayer(){
-		
-	}
-
-	public override void RotatePlayer(){}
-
-	public override void SetAnimations(){}
-
-	public override void SetHitbox(){}
-
-	public override void DestroyPostCallback(){
+	public override void Despawn(){
 		Instantiate(brokenVersion, transform.position, transform.rotation);
-	}
-
-	#endregion
-
-	#region animation events
-
-	public void StopAttack(){
-
+		base.Despawn();
 	}
 
 	#endregion

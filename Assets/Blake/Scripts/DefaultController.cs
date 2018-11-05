@@ -298,7 +298,7 @@ public class DefaultController : APlayerController {
 	#region semblance functions
 
 	void CreateClone(string type){
-		clone = Instantiate(GameObject.Find("BlakeCloneEarth"), transform.position, transform.rotation);
+		clone = Instantiate(GameObject.Find("BlakeCloneIce"), transform.position, transform.rotation);
 		clone.GetComponent<ACloneController>().lifeSpan = cloneLifeSpan;
 		clone.GetComponent<ACloneController>().enabled = true;
 	}

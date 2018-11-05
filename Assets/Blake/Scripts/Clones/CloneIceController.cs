@@ -5,23 +5,20 @@ using UnityEngine;
 public class CloneIceController : ACloneController {
 
 	public float explosionRadius;
+	public GameObject explosion;
+
+	GameObject explosionClone;
 
 	#region ACloneController
 
-	public override void MovePlayer(){
-		// if(transform.position != targetPos){
-		// 	transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed);
-		// }
-	}
+	public override void Despawn(){
+		// create ice explosion
+		CreateIceExplosion();
 
-	public override void RotatePlayer(){}
+		// freeze objects in explosion
+		FreezeObjects();
 
-	public override void SetAnimations(){}
-
-	public override void SetHitbox(){}
-
-	public override void DestroyPostCallback(){
-		
+		base.Despawn();
 	}
 
 	#endregion
@@ -29,18 +26,16 @@ public class CloneIceController : ACloneController {
 	#region collision events
 
 	void OnTriggerEnter(Collider col){
-		// destroy the game object
-		Destroy(this.gameObject);
-
-		// create ice explosion
-
-		// freeze objects in explosion
-		FreezeObjects();
+		Despawn();
 	}
 
 	#endregion
 
 	#region helper functions
+
+	void CreateIceExplosion(){
+		explosionClone = Instantiate(explosion, transform.position, transform.rotation);
+	}
 
 	void FreezeObjects()
     {
@@ -58,3 +53,4 @@ public class CloneIceController : ACloneController {
 	
 	#endregion
 }
+
