@@ -226,8 +226,6 @@ public class DefaultController : APlayerController {
 		animator.SetFloat("HSpeedZ", inputZ * currentSpeed);
 		animator.SetBool("IsDodging", isDodging);
 		animator.SetBool("IsUsingSemblance", isUsingSemblance);
-
-		
 	}
 
 	public override void PostEvents(){
@@ -246,7 +244,7 @@ public class DefaultController : APlayerController {
 			CreateClone("earth");
 		}
 
-		if(isUsingSemblance){
+		if(isUsingSemblance && clone != null){
 			Physics.IgnoreCollision(controller, clone.GetComponent<Collider>());
 		}
 		else if (!isUsingSemblance && clone != null){

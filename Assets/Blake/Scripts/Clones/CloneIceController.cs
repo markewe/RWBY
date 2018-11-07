@@ -43,7 +43,7 @@ public class CloneIceController : ACloneController {
 
 		foreach (var collider in hitColliders)
         {
-			var iFreeze = collider.gameObject.GetComponent<IFreezableObject>();
+			var iFreeze = collider.gameObject.GetComponent<FreezableObject>();
 
 			if(iFreeze != null){
 				iFreeze.Freeze();
