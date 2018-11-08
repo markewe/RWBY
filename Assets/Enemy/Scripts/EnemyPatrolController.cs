@@ -33,7 +33,7 @@ public class EnemyPatrolController : MonoBehaviour {
 			}
 		}
 
-		if(agent.enabled){
+		if(agent.isActiveAndEnabled){
 			agent.SetDestination(currentPatrolLocation.Value);
 			animator.SetFloat("HSpeed", agent.velocity.magnitude * walkSpeed);
 		}

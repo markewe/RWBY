@@ -48,18 +48,16 @@ public class FreezableObject : MonoBehaviour {
 			}
 
 			if(animator != null){
-				animator.speed = 1;
+				AnimatorResume();
 			}
 
 			if(agent != null){
-				agent.isStopped = false;
+				AgentResume();
 			}
 
 			isFrozen = false;
 		}
 	}
-
-	#region IFreezableObject
 
 	public void Freeze(){
 		// assign the frozen material		
@@ -74,16 +72,37 @@ public class FreezableObject : MonoBehaviour {
 
 		// freeze animation and movement
 		if(animator != null){
-			animator.speed = 0;
+			AnimatorPause();
 		}
 
 		if(agent != null){
-			agent.isStopped = true;
+			AgentPause();
 		}
 
 		unFreezeTime = Time.time + freezeTimer;
 		isFrozen = true;
 	}
 
-	#endregion
+	Vector3 lastAgentVelocity;
+	NavMeshPath lastAgentPath;
+
+	void AgentPause() {
+		lastAgentVelocity = agent.velocity;
+		agent.enabled = false;
+     }
+
+	 void AgentResume() {
+		agent.enabled = true;
+		agent.velocity = lastAgentVelocity;
+     }
+     
+	 void AnimatorPause(){
+		animator.speed = 0;
+		animator.enabled = false;
+	 }
+
+	 void AnimatorResume(){
+		animator.enabled = true;
+		animator.speed = 1;
+	 }
 }
