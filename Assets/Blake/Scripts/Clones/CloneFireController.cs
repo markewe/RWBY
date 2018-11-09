@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CloneFireController : ACloneController {
-public float explosionRadius;
-	public GameObject explosion;
+
+	[SerializeField]
+	float explosionRadius;
+
+	[SerializeField]
+	GameObject explosion;
 	GameObject explosionClone;
 
 	#region ACloneController

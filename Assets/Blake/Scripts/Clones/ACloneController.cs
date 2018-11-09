@@ -8,6 +8,7 @@ public abstract class ACloneController : MonoBehaviour {
 
 	float despawnTime;
 	float hSpeed;
+	
 	public float lifeSpan;
 
 	#endregion
