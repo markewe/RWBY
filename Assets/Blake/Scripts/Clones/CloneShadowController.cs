@@ -9,9 +9,8 @@ public class CloneShadowController : ACloneController {
 
 	#region ACloneController
 
-	public override void Update(){
-		base.Update();
-
+	public override void Start(){
+		base.Init();
 		Despawn();
 	}
 
@@ -52,7 +51,7 @@ public class CloneShadowController : ACloneController {
 	}
 	
 	void CloakPlayer(){
-		//TBD
+		PlayerManager.instance.player.GetComponent<CloakComponent>().Cloak();
 	}
 
 	#endregion
