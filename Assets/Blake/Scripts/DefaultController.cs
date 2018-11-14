@@ -296,7 +296,7 @@ public class DefaultController : APlayerController {
 	#region semblance functions
 
 	void CreateClone(string type){
-		var clonePrefab = Resources.Load("Characters/Blake/Prefabs/BlakeCloneShadow") as GameObject;
+		var clonePrefab = Resources.Load("Characters/Blake/Prefabs/BlakeCloneFire") as GameObject;
 		clone = Instantiate(clonePrefab, transform.position, transform.rotation);
 		clone.GetComponent<ACloneController>().lifeSpan = cloneLifeSpan;
 		clone.GetComponent<ACloneController>().enabled = true;

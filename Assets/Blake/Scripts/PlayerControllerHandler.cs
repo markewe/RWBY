@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerControllerHandler : MonoBehaviour {
+
+	
 	bool inSpecialMovement = false;
+	bool inTakedownRange = false;
 	Animator animator;
 	GameObject specialMovementTrigger;
 	GameObject	mainCamera;
@@ -23,8 +26,18 @@ public class PlayerControllerHandler : MonoBehaviour {
 		var inputInteract = Input.GetButton("Interact");
 		//print(inputInteract);
 
-		if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
-			this.GetComponent<DefaultController>().enabled = false;
+		if(!inSpecialMovement && inputInteract && inTakedownRange){
+			print("Interacting");
+			GetComponent<DefaultController>().enabled = false;
+
+			var tdc = GetComponent<TakedownController>();
+			tdc.enabled = true;
+			tdc.enemy = specialMovementTrigger;
+
+			inSpecialMovement = true;
+		}
+		else if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
+			GetComponent<DefaultController>().enabled = false;
 			//print("Interacting");
 
 			switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
@@ -62,10 +75,14 @@ public class PlayerControllerHandler : MonoBehaviour {
 				case "pickup":
 					GetComponent<HoldingObjectController>().enabled = false;
 				break;
+				case "takedown":
+					GetComponent<TakedownController>().enabled = false;
+				break;
 			}
 
 			GetComponent<DefaultController>().enabled = true;
 			inSpecialMovement = false;
+			inTakedownRange = false;
 		}
 	}
 
@@ -83,6 +100,16 @@ public class PlayerControllerHandler : MonoBehaviour {
 		if(col.tag.Equals("SpecialMovementTrigger")){
 			specialMovementTrigger = null;
 		}
+	}
+
+	public void OnTakedownTriggerEnter(GameObject enemy){
+		specialMovementTrigger = enemy;
+		inTakedownRange = true;
+	}
+
+	public void OnTakedownTriggerExit(){
+		specialMovementTrigger = null;
+		inTakedownRange = false;
 	}
 
 	#region debugging

@@ -5,4 +5,5 @@ using UnityEngine;
 public class SpecialMovementTriggers : MonoBehaviour {
 	public string movementType;
 	public string movementDirection;
+	public Collider colliderTrigger;
 }
