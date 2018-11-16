@@ -31,8 +31,8 @@ public class PlayerControllerHandler : MonoBehaviour {
 			GetComponent<DefaultController>().enabled = false;
 
 			var tdc = GetComponent<TakedownController>();
-			tdc.enabled = true;
 			tdc.enemy = specialMovementTrigger;
+			tdc.enabled = true;
 
 			inSpecialMovement = true;
 		}

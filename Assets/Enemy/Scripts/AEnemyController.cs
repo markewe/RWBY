@@ -7,28 +7,39 @@ public abstract class AEnemyController : MonoBehaviour {
 	public NavMeshAgent agent;
 	public Animator animator;
 	public CharacterController controller;
-	Rigidbody rigidbody;
+	Rigidbody rbody;
 
-	bool isInTakedown = false;
+	public bool isInTakedown = false;
 
 	public virtual void Start () {
 		agent = GetComponent<NavMeshAgent>();
 		animator = GetComponent<Animator>();		
 		controller = GetComponent<CharacterController>();
-		rigidbody = GetComponent<Rigidbody>();
+		rbody = GetComponent<Rigidbody>();
 	}
 
 	public virtual void Update(){
-		if(isInTakedown){
-			
-		}
+
+	}
+
+	public void FaceObject(GameObject target, float turnSmooth){
+		var direction = (target.transform.position - transform.position).normalized;	
+		var lookRot = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
+	}
+
+	public void InitTakedown(){
+		isInTakedown = true;
+		agent.enabled = false;
 	}
 
 	public void PerformTakedown(){
-		//isInTakedown = true;
-		agent.enabled = false;
-		rigidbody.detectCollisions = false;
+		rbody.detectCollisions = false;
 		animator.applyRootMotion = true;
-		animator.SetBool("IsInTakedown", true);
+		animator.SetBool("PerformTakedown", true);
+	}
+
+	public void EndTakedown(){
+		isInTakedown = false;
 	}
 }

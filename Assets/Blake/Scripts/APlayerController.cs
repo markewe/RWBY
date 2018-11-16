@@ -85,4 +85,14 @@ public abstract class APlayerController : MonoBehaviour {
 
 	#endregion
 
+	#region helper functions
+
+	public void FaceObject(GameObject target, float turnSmooth){
+		var direction = (target.transform.position - transform.position).normalized;	
+		var lookRot = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
+	}
+
+	#endregion
+
 }
