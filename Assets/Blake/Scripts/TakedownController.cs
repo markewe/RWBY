@@ -8,6 +8,8 @@ public class TakedownController : APlayerController {
 	float turnSmooth = 4f;
 
 	public override void OnEnable(){
+		base.OnEnable();
+		
 		if(enemy != null){
 			Physics.IgnoreCollision(GetComponent<Collider>(), enemy.GetComponent<Collider>());
 			enemy.GetComponent<AEnemyController>().InitTakedown();

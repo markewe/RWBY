@@ -12,11 +12,11 @@ public class CameraController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetButtonDown("Hook")){
+		//if(Input.GetButtonDown("Hook")){
 			// this.GetComponent<ObjectFollowObject>().enabled = !this.GetComponent<ObjectFollowObject>().enabled;
 			// this.GetComponent<AimingCamera>().enabled = !this.GetComponent<AimingCamera>().enabled;
 			//ToggleFirstPerson();
-		}
+		//}
 	}
 
 	public void ToggleFirstPerson(){

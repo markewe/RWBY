@@ -24,6 +24,7 @@ public class PlayerControllerHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		var inputInteract = Input.GetButton("Interact");
+		var specialAttack = Input.GetButton("SpecialAttack");
 		//print(inputInteract);
 
 		if(!inSpecialMovement && inputInteract && inTakedownRange){
@@ -59,6 +60,11 @@ public class PlayerControllerHandler : MonoBehaviour {
 
 			inSpecialMovement = true;
 		}
+		else if(!inSpecialMovement && specialAttack){
+			GetComponent<DefaultController>().enabled = false;
+			GetComponent<SpecialAttackController>().enabled = true;
+			inSpecialMovement = true;
+		}
 	}
 
 	public void ExitSpecialMovment(string movementType){
@@ -77,6 +83,9 @@ public class PlayerControllerHandler : MonoBehaviour {
 				break;
 				case "takedown":
 					GetComponent<TakedownController>().enabled = false;
+				break;
+				case "specialattack":
+					GetComponent<SpecialAttackController>().enabled = false;
 				break;
 			}
 
