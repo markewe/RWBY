@@ -53,6 +53,7 @@ public class CloneShadowController : ACloneController {
 	void CloakPlayer(){
 		PlayerManager.instance.player.GetComponent<CloakComponent>().Cloak();
 		PlayerManager.instance.player.GetComponent<DefaultController>().playerWeapon.GetComponent<CloakComponent>().Cloak();
+		PlayerManager.instance.player.GetComponent<DefaultController>().playerOffhandWeapon.GetComponent<CloakComponent>().Cloak();
 	}
 
 	#endregion

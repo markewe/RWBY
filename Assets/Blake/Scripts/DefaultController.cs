@@ -51,6 +51,7 @@ public class DefaultController : APlayerController {
 	float dodgeRotation;
 	static float gravity = -9.8f;
 	public GameObject playerWeapon;
+	public GameObject playerOffhandWeapon;
 	public GameObject climbHook;
 	Transform hangingLedge;
 
@@ -296,8 +297,8 @@ public class DefaultController : APlayerController {
 	#region semblance functions
 
 	void CreateClone(string type){
-		var clonePrefab = GameObject.Find("BlakeCloneIce");
-		///var clonePrefab = Resources.Load("Characters/Blake/Prefabs/BlakeCloneFire") as GameObject;
+		//var clonePrefab = GameObject.Find("BlakeCloneIce");
+		var clonePrefab = Resources.Load("Characters/Blake/Prefabs/BlakeCloneShadow") as GameObject;
 		clone = Instantiate(clonePrefab, transform.position, transform.rotation);
 		clone.GetComponent<ACloneController>().lifeSpan = cloneLifeSpan;
 		clone.GetComponent<ACloneController>().enabled = true;
