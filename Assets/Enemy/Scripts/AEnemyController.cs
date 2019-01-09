@@ -6,7 +6,6 @@ using UnityEngine.AI;
 public abstract class AEnemyController : MonoBehaviour {
 	public NavMeshAgent agent;
 	public Animator animator;
-	public CharacterController controller;
 	Rigidbody rbody;
 
 	public bool isInTakedown = false;
@@ -14,7 +13,6 @@ public abstract class AEnemyController : MonoBehaviour {
 	public virtual void Start () {
 		agent = GetComponent<NavMeshAgent>();
 		animator = GetComponent<Animator>();		
-		controller = GetComponent<CharacterController>();
 		rbody = GetComponent<Rigidbody>();
 	}
 
