@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerPrefabManager : MonoBehaviour {
-	//CloneEarth
+public enum EnemyState{
+	Patrol
+	,Alert
+	,Hostile
 }

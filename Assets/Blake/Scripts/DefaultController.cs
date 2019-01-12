@@ -375,10 +375,6 @@ public class DefaultController : APlayerController {
 
 	#region attacking functions
 
-	void ShootProjectile(){
-		playerWeapon.GetComponent<DefaultWeaponController>();
-	}
-
 	GameObject GetNearestEnemy(float rayLength){
 		RaycastHit hit;
 		var raycastHitEnemies = new Dictionary<GameObject, float>();

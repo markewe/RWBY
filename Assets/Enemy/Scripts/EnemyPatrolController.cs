@@ -30,11 +30,11 @@ public class EnemyPatrolController : AEnemyController {
 			else{
 				currentPatrolLocation = patrolLocations.First;
 			}
-		}
 
-		if(agent.isActiveAndEnabled){
-			agent.SetDestination(currentPatrolLocation.Value);
-			animator.SetFloat("HSpeed", agent.velocity.magnitude * walkSpeed);
+			if(agent.isActiveAndEnabled){
+				agent.SetDestination(currentPatrolLocation.Value);
+				animator.SetFloat("HSpeed", agent.velocity.magnitude * walkSpeed);
+			}
 		}
 
 		if(isInTakedown){
