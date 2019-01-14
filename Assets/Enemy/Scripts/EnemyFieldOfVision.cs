@@ -15,9 +15,11 @@ public class EnemyFieldOfVision : MonoBehaviour {
 	}
 
     void OnTriggerEnter(Collider col){
-        var ec = parent.GetComponent<EnemyController>();
-
-        ec.StartAttack(ec.gameObject);
+        if(col.gameObject == PlayerManager.instance.player)
+        {
+            var ec = parent.GetComponent<EnemyController>();
+            ec.StartAttack(PlayerManager.instance.player);
+        }
     }
 
 }

@@ -8,8 +8,8 @@ public class EnemyController : AEnemyController {
 	[SerializeField]
 	GameObject patrolWaypointsObject;
 
-	public static float lookRadius = 7f;
-	public static float stopDistance = 5f;
+	public static float lookRadius = 10f;
+	public static float stopDistance = 7f;
 	public static float turnSmooth = 2f;
 	public static float retreatDistance = 3f;	
 
@@ -17,10 +17,8 @@ public class EnemyController : AEnemyController {
 	bool isIdling;
 	bool walkBackwards = false;
 	float attackRadius = 10f;
-	float attackWalkSpeed = 0.5f;
+	float attackWalkSpeed = 4f;
 	float patrolWalkSpeed = 2f;
-
-	GameObject fieldOfVision;
 	public GameObject target;
 	public EnemyState state;
 	List<Vector3> patrolWaypoints;
@@ -30,15 +28,15 @@ public class EnemyController : AEnemyController {
 	public override void Start () {
 		base.Start();
 		random = new System.Random();
-		state = EnemyState.Patrol;
 
+		// create patrol waypoint list
 		patrolWaypoints = new List<Vector3>();
 
 		foreach(Transform waypoint in patrolWaypointsObject.transform){
 			patrolWaypoints.Add(waypoint.position);
 		}
-		
-		agent.SetDestination(patrolWaypoints[1]);
+
+		StartPatrol();
 	}
 	
 	// Update is called once per frame
@@ -58,8 +56,12 @@ public class EnemyController : AEnemyController {
 	void SetAnimations(){
 		var walkSpeed = isAttacking ? attackWalkSpeed : patrolWalkSpeed;
 
+		var forwardSpeed = Vector3.Dot(agent.velocity, transform.forward);
+		var rightSpeed = Vector3.Dot(agent.velocity, transform.right);
+
 		animator.SetBool("IsAttacking", isAttacking);
-		animator.SetFloat("HSpeed", agent.velocity.magnitude * walkSpeed * (walkBackwards ? -1f : 1f));
+		animator.SetFloat("ForwardSpeed", forwardSpeed);
+		animator.SetFloat("RightSpeed", rightSpeed);
 	}
 
 	void Patrol(){
@@ -70,7 +72,7 @@ public class EnemyController : AEnemyController {
 				agent.SetDestination(nextDestination);
 			}
 			else{
-				Idle();
+				//Idle();
 			}
 		}
 	}
@@ -79,16 +81,22 @@ public class EnemyController : AEnemyController {
 		state = EnemyState.Idle;
 	}
 
-	public void StartAttack(GameObject target){
-		target = target;
+	public void StartAttack(GameObject newTarget){
+		target = newTarget;
 		state = EnemyState.Hostile;
 		agent.stoppingDistance = stopDistance;
+		agent.speed = attackWalkSpeed;
 	}
 
-	public void StopAttack(GameObject target){
+	public void StopAttack(){
 		target = null;
+		StartPatrol();
+	}
+
+	void StartPatrol(){
 		state = EnemyState.Patrol;
 		agent.stoppingDistance = 0f;
+		agent.speed = patrolWalkSpeed;
 	}
 
 	float fireRate = 0.5f;
@@ -115,11 +123,11 @@ public class EnemyController : AEnemyController {
 		}
 		
 		// perform attack
-		if(distance < attackRadius && Time.time > nextFireTime){
-			isAttacking = true;
-			nextFireTime = Time.time + fireRate;
-			playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
-		}
+		// if(distance < attackRadius && Time.time > nextFireTime){
+		// 	isAttacking = true;
+		// 	nextFireTime = Time.time + fireRate;
+		// 	playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+		// }
 	}
 
 	void OnTriggerEnter(Collider col){
