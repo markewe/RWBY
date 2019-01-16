@@ -16,9 +16,9 @@ public abstract class AEnemyController : MonoBehaviour {
 		rbody = GetComponent<Rigidbody>();
 	}
 
-	public virtual void Update(){
-
-	}
+	public virtual void Update(){}
+	public virtual void TargetEnteredFieldOfVision(GameObject newTarget){}
+	public virtual void TargetExitedFieldOfVision(GameObject newTarget){}
 
 	public void FaceObject(GameObject target, float turnSmooth){
 		var direction = (target.transform.position - transform.position).normalized;	

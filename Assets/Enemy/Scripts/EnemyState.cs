@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum EnemyState{
-	Patrol
+	Idle
+	,Patrol
 	,Alert
 	,Hostile
 }
