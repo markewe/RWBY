@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DefaultController : APlayerController {
+public class DefaultController : APlayerController, IHealthListener {
 
 	public bool toggleRun = true;
 	public GameObject currentAttackTarget;
@@ -235,7 +235,7 @@ public class DefaultController : APlayerController {
 		{
 			nextFire = Time.time + fireRate;
 			nextFireTimeout = Time.time + fireTimeoutRate;
-			playerWeapon.GetComponent<DefaultWeaponController>().ShootProjectile(currentAttackTarget);
+			playerWeapon.GetComponent<DefaultWeaponController>().Attack(currentAttackTarget);
 		}
 		else if(Time.time > nextFireTimeout){
 			isAimingGun = false;
@@ -257,6 +257,22 @@ public class DefaultController : APlayerController {
 	public override void SetHitbox(){
 		controller.height = 1.7f;
 		controller.center = new Vector3(0f,  1.7f / 2f, 0f);
+	}
+
+	#endregion
+
+	#region IHealthListener functions
+
+	public void OnTakeDamage(){
+
+	}
+
+	public void OnHealDamage(){
+
+	}
+
+	public void OnZeroHealth(){
+
 	}
 
 	#endregion

@@ -183,7 +183,7 @@ public class EnemyController : AEnemyController {
 		if(distance < attackRadius && Time.time > nextAttackTime){
 			isAttacking = true;
 			nextAttackTime = Time.time + attackRate;
-			weapon.GetComponent<AWeaponController>().Attack(currentTarget);
+			weapon.GetComponent<RangedWeaponController>().Attack(currentTarget);
 		}
 	}
 
