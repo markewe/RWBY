@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DefaultController : APlayerController, IHealthListener {
+public class DefaultController : APlayerController {
 
 	public bool toggleRun = true;
 	public GameObject currentAttackTarget;
@@ -20,11 +20,11 @@ public class DefaultController : APlayerController, IHealthListener {
 	float fireTimeoutRate = 1f;
 	float nextFireTimeout = 0;
 	float playerMass = 1.5f;
+	bool isAttacking = false;
 	bool isClimbingLedge = false;
 	bool isCrouching = false;
 	bool isRunning = true;
 	bool isJumping = false;
-	bool isAttacking = false;
 	bool isHanging = false;
 	bool isDodging = false;
 	bool isAimingGun = false;
@@ -261,17 +261,9 @@ public class DefaultController : APlayerController, IHealthListener {
 
 	#endregion
 
-	#region IHealthListener functions
+	#region other event functions
 
 	public void OnTakeDamage(){
-
-	}
-
-	public void OnHealDamage(){
-
-	}
-
-	public void OnZeroHealth(){
 
 	}
 
@@ -322,7 +314,7 @@ public class DefaultController : APlayerController, IHealthListener {
 
 	#endregion
 
-	#region hitbox functions
+	#region other hitbox functions
 
 	void SetCrouchHitbox(){
 
@@ -397,7 +389,6 @@ public class DefaultController : APlayerController, IHealthListener {
 		var layerMask = 1 << 11; // only enemy layer
 		var degreeSlice = 2;
 		var rays = new Vector3[180/degreeSlice];
-		
 
 		// check both ends and middle of hook for raycast
 		rays[0] = climbHook.transform.position;

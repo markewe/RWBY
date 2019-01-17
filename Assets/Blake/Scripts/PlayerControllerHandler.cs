@@ -3,19 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerControllerHandler : MonoBehaviour {
-
-	
+public class PlayerControllerHandler : MonoBehaviour, IHealthListener {
 	bool inSpecialMovement = false;
 	bool inTakedownRange = false;
 	Animator animator;
+	APlayerController currentController;
 	GameObject specialMovementTrigger;
 	GameObject	mainCamera;
 	CameraController cameraController;
 
 	// Use this for initialization
 	void Start () {
-		GetComponent<DefaultController>().enabled = true;
+		currentController = GetComponent<DefaultController>();
+		currentController.enabled = true;
 		animator = GetComponent<Animator>();
 		mainCamera = GameObject.Find("CameraObject");
 		cameraController = mainCamera.GetComponent<CameraController>();
@@ -25,45 +25,51 @@ public class PlayerControllerHandler : MonoBehaviour {
 	void Update () {
 		var inputInteract = Input.GetButton("Interact");
 		var specialAttack = Input.GetButton("SpecialAttack");
-		//print(inputInteract);
 
-		if(!inSpecialMovement && inputInteract && inTakedownRange){
-			print("Interacting");
-			GetComponent<DefaultController>().enabled = false;
+		if(currentController is DefaultController){
+			if(!inSpecialMovement && inputInteract && inTakedownRange){
+				currentController.enabled = false;
 
-			var tdc = GetComponent<TakedownController>();
-			tdc.enemy = specialMovementTrigger;
-			tdc.enabled = true;
+				var tdc = GetComponent<TakedownController>();
+				tdc.enemy = specialMovementTrigger;
+				tdc.enabled = true;
 
-			inSpecialMovement = true;
-		}
-		else if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
-			GetComponent<DefaultController>().enabled = false;
-			//print("Interacting");
-
-			switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
-				case "crawl":
-					GetComponent<CrawlingController>().enabled = true;
-					cameraController.ToggleFirstPerson();
-				break;
-				case "ladder":
-					var lcc = GetComponent<LadderClimbingController>();
-					lcc.ladder = specialMovementTrigger;
-					lcc.enabled = true;
-				break;
-				case "pickup":
-					var hoc = GetComponent<HoldingObjectController>();
-					hoc.pickupObject = specialMovementTrigger.transform.parent.gameObject;
-					hoc.enabled = true;
-				break;
+				inSpecialMovement = true;
+				currentController = tdc;
 			}
+			else if(!inSpecialMovement && inputInteract && specialMovementTrigger != null){
+				GetComponent<DefaultController>().enabled = false;
 
-			inSpecialMovement = true;
-		}
-		else if(!inSpecialMovement && specialAttack){
-			GetComponent<DefaultController>().enabled = false;
-			GetComponent<SpecialAttackController>().enabled = true;
-			inSpecialMovement = true;
+				switch(specialMovementTrigger.GetComponent<SpecialMovementTriggers>().movementType){
+					case "crawl":
+						var cc = GetComponent<CrawlingController>();
+						cc.enabled = true;
+						cameraController.ToggleFirstPerson();
+						currentController = cc;
+					break;
+					case "ladder":
+						var lcc = GetComponent<LadderClimbingController>();
+						lcc.ladder = specialMovementTrigger;
+						lcc.enabled = true;
+						currentController = lcc;
+					break;
+					case "pickup":
+						var hoc = GetComponent<HoldingObjectController>();
+						hoc.pickupObject = specialMovementTrigger.transform.parent.gameObject;
+						hoc.enabled = true;
+						currentController = hoc;
+					break;
+				}
+
+				inSpecialMovement = true;
+			}
+			else if(!inSpecialMovement && specialAttack){
+				currentController.enabled = false;
+				var sac = GetComponent<SpecialAttackController>();
+				sac.enabled = true;
+				currentController = sac;
+				inSpecialMovement = true;
+			}
 		}
 	}
 
@@ -120,6 +126,34 @@ public class PlayerControllerHandler : MonoBehaviour {
 		specialMovementTrigger = null;
 		inTakedownRange = false;
 	}
+
+	#region IHealthListener functions
+
+	public void OnTakeDamage(){
+		if(currentController is HoldingObjectController){
+			(currentController as HoldingObjectController).DropObject();
+		}
+		else if(currentController is DefaultController){
+			(currentController as DefaultController).OnTakeDamage();
+		}
+	}
+
+	public void OnHealDamage(){}
+
+	public void OnZeroHealth(){
+		currentController.enabled = false;
+
+		if(GetComponent<CharacterController>().isGrounded){
+			animator.SetBool("IsKnockedOut", true);
+		}
+		else{
+			animator.SetBool("IsKnockedOutAir", true);
+		}
+		
+		//GameManager.instance.GameOver();
+	}
+
+	#endregion
 
 	#region debugging
 	void OnDrawGizmos() {

@@ -113,6 +113,11 @@ public class HoldingObjectController : APlayerController {
 		print("ResetPickupObject");
 	}
 
+	public void DropObject(){
+		ResetPickupObject();
+		GetComponent<PlayerControllerHandler>().ExitSpecialMovment("pickup");
+	}
+
 	#endregion
 
 	#region Animation Events

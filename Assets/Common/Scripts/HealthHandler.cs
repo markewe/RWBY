@@ -6,44 +6,44 @@ using UnityEngine.AI;
 public class HealthHandler : MonoBehaviour {
 
 	[SerializeField]
-	private float hitPoints;
+	float hitPoints;
+
+	public bool invulnerable = false;
+	float currentHitPoints;
+
 	Animator animator;
 	NavMeshAgent agent;
-	bool isDead;
-	
+	IHealthListener healthListener;
 
 	// Use this for initialization
 	void Start () {
 		agent = GetComponent<NavMeshAgent>();
 		animator = GetComponent<Animator>();
-		isDead = false;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		CheckHealth();
+		healthListener = GetComponent<IHealthListener>();
 
-		if(isDead){
-			animator.SetBool("IsDead", isDead);
-			agent.isStopped = true;
-		}
+		currentHitPoints = hitPoints;
 	}
 
 	void CheckHealth(){
-		if(hitPoints <= 0){
-			isDead = true;
+		if(currentHitPoints <= 0){
+			healthListener.OnZeroHealth();
 		}
 	}
 
 	void AddHealth(float amount){
-		hitPoints += amount;
+		currentHitPoints += amount;
+		CheckHealth();
 	}
 
-	public void Heal(float hitPointAmount){
+	public void HealDamage(float hitPointAmount){
 		AddHealth(hitPointAmount);
+		healthListener.OnHealDamage();
 	}
 
 	public void TakeDamage(float hitPointAmount){
-		AddHealth(hitPointAmount * - 1f);
+		if(!invulnerable){
+			AddHealth(hitPointAmount * - 1f);
+			healthListener.OnTakeDamage();
+		}
 	}
 }
