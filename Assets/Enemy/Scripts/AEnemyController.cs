@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class AEnemyController : MonoBehaviour {
+public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 	public NavMeshAgent agent;
 	public Animator animator;
 	Rigidbody rbody;
@@ -17,8 +17,8 @@ public abstract class AEnemyController : MonoBehaviour {
 	}
 
 	public virtual void Update(){}
-	public virtual void TargetEnteredFieldOfVision(GameObject newTarget){}
-	public virtual void TargetExitedFieldOfVision(GameObject newTarget){}
+	public abstract void TargetEnteredFieldOfVision(GameObject newTarget);
+	public abstract void TargetExitedFieldOfVision(GameObject newTarget);
 
 	public void FaceObject(GameObject target, float turnSmooth){
 		var direction = (target.transform.position - transform.position).normalized;	
@@ -40,4 +40,42 @@ public abstract class AEnemyController : MonoBehaviour {
 	public void EndTakedown(){
 		isInTakedown = false;
 	}
+
+	#region IHealthListener functions
+
+	public void OnTakeDamage(){
+		agent.enabled = false;
+		animator.SetBool("IsHit");
+	}
+
+	public void OnHealDamage(){}
+
+	public void OnZeroHealth(){
+		agent.enabled = false;
+
+		if(IsGrounded){
+			animator.SetBool("IsKnockedOut", true);
+		}
+		else{
+			animator.SetBool("IsKnockedOutAir", true);
+		}
+	}
+
+	#endregion
+
+	#region animation events
+
+	public void HitStunEnd(){
+		agent.enabled = true;
+	}
+
+	#endregion
+
+	#region helper functions
+
+	bool IsGrounded(){
+		return false;
+	}
+
+	#endregion
 }

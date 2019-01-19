@@ -75,27 +75,19 @@ public class PlayerControllerHandler : MonoBehaviour, IHealthListener {
 
 	public void ExitSpecialMovment(string movementType){
 		if(inSpecialMovement && !string.IsNullOrWhiteSpace(movementType)){
-
 			switch(movementType){
 				case "crawl":
-					GetComponent<CrawlingController>().enabled = false;
 					cameraController.ToggleFirstPerson();
-				break;
 				case "ladder":
-					GetComponent<LadderClimbingController>().enabled = false;
-				break;
 				case "pickup":
-					GetComponent<HoldingObjectController>().enabled = false;
-				break;
 				case "takedown":
-					GetComponent<TakedownController>().enabled = false;
-				break;
 				case "specialattack":
-					GetComponent<SpecialAttackController>().enabled = false;
-				break;
+				default:
+					currentController.enabled = false;
 			}
 
-			GetComponent<DefaultController>().enabled = true;
+			currentController = GetComponent<DefaultController>();
+			currentController.enabled = true;
 			inSpecialMovement = false;
 			inTakedownRange = false;
 		}
