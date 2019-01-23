@@ -45,7 +45,7 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 
 	public void OnTakeDamage(){
 		agent.enabled = false;
-		animator.SetBool("IsHit");
+		animator.SetBool("IsHit", true);
 	}
 
 	public void OnHealDamage(){}
@@ -53,7 +53,7 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 	public void OnZeroHealth(){
 		agent.enabled = false;
 
-		if(IsGrounded){
+		if(IsGrounded()){
 			animator.SetBool("IsKnockedOut", true);
 		}
 		else{
@@ -74,7 +74,7 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 	#region helper functions
 
 	bool IsGrounded(){
-		return false;
+		return true;
 	}
 
 	#endregion

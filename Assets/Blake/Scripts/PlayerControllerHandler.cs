@@ -78,14 +78,10 @@ public class PlayerControllerHandler : MonoBehaviour, IHealthListener {
 			switch(movementType){
 				case "crawl":
 					cameraController.ToggleFirstPerson();
-				case "ladder":
-				case "pickup":
-				case "takedown":
-				case "specialattack":
-				default:
-					currentController.enabled = false;
+					break;
 			}
 
+			currentController.enabled = false;
 			currentController = GetComponent<DefaultController>();
 			currentController.enabled = true;
 			inSpecialMovement = false;

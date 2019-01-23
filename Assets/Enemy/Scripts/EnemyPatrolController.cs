@@ -44,5 +44,15 @@ public class EnemyPatrolController : AEnemyController {
 		base.Update();
 	}
 
+	public override void TargetEnteredFieldOfVision(GameObject newTarget){
+
+	}
+
+	public override void TargetExitedFieldOfVision(GameObject newTarget){
+		
+	}
+
+	void StopIdle(){}
+
 	void StopAttack(){}
 }

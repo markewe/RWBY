@@ -115,6 +115,7 @@ public class EnemyController : AEnemyController {
 	}
 
 	public void StartAttack(GameObject newTarget){
+		print("startattack");
 		currentTarget = newTarget;
 		state = EnemyState.Hostile;
 		agent.stoppingDistance = stopDistance;
@@ -126,13 +127,13 @@ public class EnemyController : AEnemyController {
 		StartPatrol();
 	}
 
-	public void TargetEnteredFieldOfVision(GameObject newTarget){
+	public override void TargetEnteredFieldOfVision(GameObject newTarget){
 		if(currentTarget == null && CanSeeTarget(newTarget)){
 			StartAttack(newTarget);
 		}
 	}
 
-	public void TargetExitedFieldOfVision(GameObject newTarget){
+	public override void TargetExitedFieldOfVision(GameObject newTarget){
 		if(currentTarget != null){
 
 		}
@@ -141,11 +142,16 @@ public class EnemyController : AEnemyController {
 	bool CanSeeTarget(GameObject newTarget){
         var rayDir = newTarget.transform.position - transform.position;
         RaycastHit hit;
+		var layerMask = (1 << LayerMask.NameToLayer("Enemies")) 
+			| (1 << LayerMask.NameToLayer("Enemy Field of Vision"))
+			| (1 << LayerMask.NameToLayer("Invisible Triggers"));
+		layerMask = ~layerMask;
 
-        Physics.Raycast(transform.position, rayDir, out hit, rayDir.magnitude);
+        Physics.Raycast(transform.position, rayDir, out hit, rayDir.magnitude, layerMask);
 
-        return hit.collider.gameObject.CompareTag("player") 
-			|| hit.collider.gameObject.CompareTag("clone");
+		// make sure nothing is obstructing view to target
+		return hit.collider == null 
+			&& (newTarget.CompareTag("Player") || newTarget.CompareTag("Clone"));
     }
 
 	void StartPatrol(){
@@ -189,7 +195,7 @@ public class EnemyController : AEnemyController {
 
 	void ScanForTarget(){
 		isScanning = true;
-		agent.Stop();
+		agent.isStopped = true;
 		agent.updateRotation = true;
 	}
 
