@@ -11,16 +11,11 @@ public class HealthHandler : MonoBehaviour {
 	public bool invulnerable = false;
 	float currentHitPoints;
 
-	Animator animator;
-	NavMeshAgent agent;
 	IHealthListener healthListener;
 
 	// Use this for initialization
 	void Start () {
-		agent = GetComponent<NavMeshAgent>();
-		animator = GetComponent<Animator>();
 		healthListener = GetComponent<IHealthListener>();
-
 		currentHitPoints = hitPoints;
 	}
 

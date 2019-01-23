@@ -16,7 +16,7 @@ public class CrawlingController : APlayerController {
 	static float crawlSpeed = 2f;
 
 	public override void HandleInputs(){
-		inputX =  Input.GetAxis("Horizontal");
+		inputX = Input.GetAxis("Horizontal");
 		inputZ = Input.GetAxis("Vertical");
 		mouseX = Input.GetAxis("Mouse X") * cameraTurnSpeed;
 	}
