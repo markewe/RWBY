@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : AEnemyController {
+public class EnemyController : AEnemyController, IEnemyHeldShieldListener {
 
 	[SerializeField]
 	GameObject patrolWaypointsObject;
@@ -211,10 +211,32 @@ public class EnemyController : AEnemyController {
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
 
+	#region IEnemyHeldShieldListener functions
+
+	public void OnShieldBroken(){
+		animator.SetBool("ShieldBroken", true);
+	}
+
+	public void OnShieldActiveHit(){
+		OnTakeDamage();
+	}
+
+	public void OnShieldInactiveHit(){}
+
+	public void OnShieldRecharge(){
+		animator.SetBool("ShieldBroken", false);
+	}
+
+	#endregion
+
 	#region animation events
 
 	void StopIdle(){
 		StartPatrol();
+	}
+
+	void OnShieldHitStunEnd(){
+		HitStunEnd();
 	}
 	
 	#endregion
