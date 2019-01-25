@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IEnemyHeldShieldListener {
+public interface IShieldListener {
 	void OnShieldBroken();
 	void OnShieldActiveHit();
-	void OnShieldInactiveHit();
+	void OnShieldInactiveHit(float hitAmount);
 	void OnShieldRecharge();
 }

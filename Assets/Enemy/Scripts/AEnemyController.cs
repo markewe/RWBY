@@ -6,14 +6,16 @@ using UnityEngine.AI;
 public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 	public NavMeshAgent agent;
 	public Animator animator;
-	Rigidbody rbody;
+	public HealthHandler healthHandler;
+	Rigidbody rigidBody;
 
 	public bool isInTakedown = false;
 
 	public virtual void Start () {
 		agent = GetComponent<NavMeshAgent>();
 		animator = GetComponent<Animator>();		
-		rbody = GetComponent<Rigidbody>();
+		healthHandler = GetComponent<HealthHandler>();
+		rigidBody = GetComponent<Rigidbody>();
 	}
 
 	public virtual void Update(){}
@@ -26,13 +28,15 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
 
+	#region MOVE TO INTERFACE?
+
 	public void InitTakedown(){
 		isInTakedown = true;
 		agent.enabled = false;
 	}
 
 	public void PerformTakedown(){
-		rbody.detectCollisions = false;
+		rigidBody.detectCollisions = false;
 		animator.applyRootMotion = true;
 		animator.SetBool("PerformTakedown", true);
 	}
@@ -40,6 +44,8 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 	public void EndTakedown(){
 		isInTakedown = false;
 	}
+
+	#endregion
 
 	#region IHealthListener functions
 

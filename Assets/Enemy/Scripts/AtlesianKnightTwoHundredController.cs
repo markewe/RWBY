@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : AEnemyController, IEnemyHeldShieldListener {
+public class AtlesianKnightTwoHundredController : AEnemyController, IHitboxListener {
 
 	[SerializeField]
 	GameObject patrolWaypointsObject;
@@ -211,20 +211,10 @@ public class EnemyController : AEnemyController, IEnemyHeldShieldListener {
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
 
-	#region IEnemyHeldShieldListener functions
+	#region IHitboxListener
 
-	public void OnShieldBroken(){
-		animator.SetBool("ShieldBroken", true);
-	}
-
-	public void OnShieldActiveHit(){
-		OnTakeDamage();
-	}
-
-	public void OnShieldInactiveHit(){}
-
-	public void OnShieldRecharge(){
-		animator.SetBool("ShieldBroken", false);
+	public void OnWeaponHitboxEnter(WeaponHitbox hitbox){
+		GetComponent<HealthHandler>().TakeDamage(hitbox.hitAmount);
 	}
 
 	#endregion
