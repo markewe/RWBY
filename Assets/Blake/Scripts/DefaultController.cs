@@ -235,7 +235,7 @@ public class DefaultController : APlayerController {
 		{
 			nextFire = Time.time + fireRate;
 			nextFireTimeout = Time.time + fireTimeoutRate;
-			playerWeapon.GetComponent<DefaultWeaponController>().Attack(currentAttackTarget);
+			playerWeapon.GetComponent<RangedWeaponController>().Attack(currentAttackTarget);
 		}
 		else if(Time.time > nextFireTimeout){
 			isAimingGun = false;

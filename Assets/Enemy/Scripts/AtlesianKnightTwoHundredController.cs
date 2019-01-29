@@ -55,10 +55,10 @@ public class AtlesianKnightTwoHundredController : AEnemyController, IHitboxListe
 					AttackTarget();
 				}
 				else if(Time.time <= hostileTimeout) {
-					ScanForTarget();
+					//ScanForTarget();
 				}
 				else if(Time.time > hostileTimeout){
-					StartPatrol();
+					//StartPatrol();
 				}
 				break;
 			case EnemyState.Patrol:

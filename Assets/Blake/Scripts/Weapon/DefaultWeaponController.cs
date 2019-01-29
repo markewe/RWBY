@@ -6,7 +6,7 @@ public class DefaultWeaponController : AWeaponController {
 	float bulletSpeed = 50f;
 
 	public override void Attack(GameObject target){
-		var emitter = GameObject.Find("ProjectileEmitter");
+		var emitter = transform.Find("ProjectileEmitter");
 		var fireDirection = target != null 
 			? (target.transform.position - emitter.transform.position).normalized : emitter.transform.forward;
 
