@@ -17,8 +17,7 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitbox
 		healthHandler = GetComponent<HealthHandler>();
 		rigidBody = GetComponent<Rigidbody>();
 	}
-
-	public virtual void Update(){}
+	
 	public abstract void TargetEnteredFieldOfVision(GameObject newTarget);
 	public abstract void TargetExitedFieldOfVision(GameObject newTarget);
 
