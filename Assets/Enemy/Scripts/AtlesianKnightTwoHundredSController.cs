@@ -27,7 +27,7 @@ public class AtlesianKnightTwoHundredSController : AtlesianKnightTwoHundredContr
 
 	#region IHitboxListener
 	
-	public void OnWeaponHitboxEnter(WeaponHitbox hitbox){
+	public override void OnWeaponHitboxEnter(WeaponHitbox hitbox){
 		if(AttackIsBlockable(hitbox)){
 			// melee causes no shield damage
 			if(hitbox.isMelee){

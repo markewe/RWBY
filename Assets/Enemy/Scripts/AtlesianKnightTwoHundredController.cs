@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class AtlesianKnightTwoHundredController : AEnemyController, IHitboxListener {
+public class AtlesianKnightTwoHundredController : AEnemyController {
 
 	[SerializeField]
 	GameObject patrolWaypointsObject;
@@ -211,13 +211,7 @@ public class AtlesianKnightTwoHundredController : AEnemyController, IHitboxListe
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
 
-	#region IHitboxListener
-
-	public void OnWeaponHitboxEnter(WeaponHitbox hitbox){
-		GetComponent<HealthHandler>().TakeDamage(hitbox.hitAmount);
-	}
-
-	#endregion
+	
 
 	#region animation events
 

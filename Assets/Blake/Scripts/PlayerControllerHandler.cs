@@ -27,6 +27,7 @@ public class PlayerControllerHandler : MonoBehaviour, IHealthListener {
 		var specialAttack = Input.GetButton("SpecialAttack");
 
 		if(currentController is DefaultController){
+			
 			if(!inSpecialMovement && inputInteract && inTakedownRange){
 				currentController.enabled = false;
 

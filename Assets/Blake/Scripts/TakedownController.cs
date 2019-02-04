@@ -12,7 +12,7 @@ public class TakedownController : APlayerController {
 		
 		if(enemy != null){
 			Physics.IgnoreCollision(GetComponent<Collider>(), enemy.GetComponent<Collider>());
-			enemy.GetComponent<AEnemyController>().InitTakedown();
+			enemy.GetComponent<EnemyTakedownHandler>().InitTakedown();
 			animator.SetFloat("HSpeed", 0f);
 			animator.SetFloat("VSpeed", 0f);
 			animator.SetBool("IsInTakedown", true);
@@ -29,7 +29,7 @@ public class TakedownController : APlayerController {
 		// check if player and enemy are facing each other.
 		if(Vector3.Dot(transform.forward, enemy.transform.forward) + 1f < 0.01f){
 			animator.SetBool("PerformTakedown", true);
-			enemy.GetComponent<AEnemyController>().PerformTakedown();
+			enemy.GetComponent<EnemyTakedownHandler>().PerformTakedown();
 			animator.SetBool("IsInTakedown", false);
 		}
 		else{
@@ -50,7 +50,7 @@ public class TakedownController : APlayerController {
 	#region animation events
 
 	public void EndTakedown(){
-		enemy.GetComponent<AEnemyController>().EndTakedown();
+		enemy.GetComponent<EnemyTakedownHandler>().EndTakedown();
 		animator.SetBool("PerformTakedown", false);
 		GetComponent<PlayerControllerHandler>().ExitSpecialMovment("takedown");
 	}

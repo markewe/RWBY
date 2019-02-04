@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class AEnemyController : MonoBehaviour, IHealthListener {
+public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitboxListener {
 	public NavMeshAgent agent;
 	public Animator animator;
 	public HealthHandler healthHandler;
@@ -28,21 +28,10 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener {
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
 
-	#region MOVE TO INTERFACE?
+	#region IHitboxListener
 
-	public void InitTakedown(){
-		isInTakedown = true;
-		agent.enabled = false;
-	}
-
-	public void PerformTakedown(){
-		rigidBody.detectCollisions = false;
-		animator.applyRootMotion = true;
-		animator.SetBool("PerformTakedown", true);
-	}
-
-	public void EndTakedown(){
-		isInTakedown = false;
+	public virtual void OnWeaponHitboxEnter(WeaponHitbox hitbox){
+		GetComponent<HealthHandler>().TakeDamage(hitbox.hitAmount);
 	}
 
 	#endregion
