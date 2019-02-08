@@ -27,6 +27,14 @@ public class ShieldHandler : MonoBehaviour {
 		}
 	}
 
+	public void MultiplyCurrentShield(float multiplier){
+		currentHitPoints *= multiplier;
+	}
+
+	public void DivideCurrentShield(float multiplier){
+		currentHitPoints /= multiplier;
+	}
+
 	public void OnShieldHit(float hitAmount){
 		if(isActive){
 			if(hitPoints - hitAmount < 0){
