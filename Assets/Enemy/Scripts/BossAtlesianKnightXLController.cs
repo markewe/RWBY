@@ -1,49 +1,47 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class BossAtlesianKnightXLController : Monobehavior
+public class BossAtlesianKnightXLController : MonoBehaviour
 	, IHealthListener, IShieldListener, IHitboxListener {
 
-	[SeriazlizeField]
-	float attackRadius
-	[SeriazlizeField]
+	[SerializeField]
+	float attackRadius;
+	[SerializeField]
 	float attackRate;
-	[SeriazlizeField]
+	[SerializeField]
 	float turretModeFireRateMultiplier;
-	[SeriazlizeField]
+	[SerializeField]
 	float turretModeShieldMultiplier;
 
+	bool isAttacking = false;
 	bool inTurretMode = false;
-	
-	float nextTurretModeTime;
+	float nextAttackTime = 0f;
+	float nextTurretModeTime = 0f;
 	float turnSmooth = 2f;
 	float turretModeTimer = 10f;
-	float turretModeTimeout;
+	float turretModeTimeout = 0f;
 	float turretModeTurnSmooth = 10f;
 	GameObject currentTarget;
 
 	Animator animator;
 	HealthHandler healthHandler;
 	NavMeshAgent agent;
-	Random random;
 	ShieldHandler shieldHandler;
 
 	void OnEnable(){
-		nextTurretModeTime = GetNextTurretModetime();
+		nextTurretModeTime = GetNextTurretModeTime();
 	}
 
 	// Use this for initialization
 	void Start () {
 		animator = GetComponent<Animator>();
-		agent = GetComponent<Animator>();
+		agent = GetComponent<NavMeshAgent>();
 		healthHandler = GetComponent<HealthHandler>();
 		shieldHandler = GetComponent<ShieldHandler>();
-		random = new System.Random();
 
-		agent.stopDistance = attackRadius;
-		nextTurretModeTime = 0f;
-		turretModeTimeout = 0f;
+		agent.stoppingDistance = attackRadius;
 	}
 	
 	// Update is called once per frame
@@ -58,16 +56,16 @@ public class BossAtlesianKnightXLController : Monobehavior
 			TurretModeExit();
 		}
 
-		SetAnimation();
+		SetAnimations();
 	}
 
 	void SetAnimations(){
-		 animator.setBool("inTurretMode", inTurretMode);
+		 animator.SetBool("inTurretMode", inTurretMode);
 	}
 
-	float GetNextTurretModetime(){
+	float GetNextTurretModeTime(){
 		// every 10-20s
-		nextTurretModeTime = Time.time + (10f * System.Random.Range(1f, 2f));
+		return Time.time + (10f * Random.Range(1f, 2f));
 	}
 
 	void Attack(){
