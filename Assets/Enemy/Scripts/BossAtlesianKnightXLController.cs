@@ -15,10 +15,13 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 	[SerializeField]
 	float turretModeShieldMultiplier;
 
+	bool throwGrenade = false;
 	bool isAttacking = false;
 	bool inTurretMode = false;
+	float grenadeTimer = 10f;
 	float nextAttackTime = 0f;
 	float nextTurretModeTime = 0f;
+	float nextGrenadeThrowTime = 0f;
 	float turnSmooth = 2f;
 	float turretModeTimer = 10f;
 	float turretModeTimeout = 0f;
@@ -32,6 +35,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 
 	void OnEnable(){
 		nextTurretModeTime = GetNextTurretModeTime();
+		nextGrenadeThrowTime = GetNextGrenadeThrowTime();
 	}
 
 	// Use this for initialization
@@ -60,11 +64,17 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 	}
 
 	void SetAnimations(){
-		 animator.SetBool("inTurretMode", inTurretMode);
+		animator.SetFloat("HSpeed", agent.velocity);
+		animator.SetBool("ThrowGrenade", throwGrenade);
+		animator.SetBool("InTurretMode", inTurretMode);
 	}
 
 	float GetNextTurretModeTime(){
 		// every 10-20s
+		return Time.time + (10f * Random.Range(1f, 2f));
+	}
+
+	float GetNextGrenadeThrowTime(){
 		return Time.time + (10f * Random.Range(1f, 2f));
 	}
 
@@ -85,7 +95,12 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 			if(Time.time > nextAttackTime){
 				isAttacking = true;
 				nextAttackTime = Time.time + attackRate;
-				weapon.GetComponent<RangedWeaponController>().Attack(currentTarget);
+				GetComponent<RangedWeaponController>().Attack(currentTarget);
+			}
+
+			// throw grenade
+			if(!inTurretMode && Time.time > nextGrenadeThrowTime){
+				throwGrenade = true;
 			}
 		}
 	}
@@ -126,6 +141,15 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 
 		return false;
 	}
+
+	#region animation events
+
+	void ThrowGrenade(){
+		GetComponent<ThrownWeaponController>().Attack(currentTarget);
+		throwGrenade = false;
+	}
+
+	#endregion
 
 	#region IHealthListener
 
