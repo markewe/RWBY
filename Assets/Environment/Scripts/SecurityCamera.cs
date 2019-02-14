@@ -11,6 +11,8 @@ public class SecurityCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		// scan back and forth in a x degree angle at x speed
+		// if spot player focus on player
+		// after x seconds make enemies in an x radius target player
 	}
 }
