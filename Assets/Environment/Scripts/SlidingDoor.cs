@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlidingDoor : MonoBehavior, IDoor {
+public class SlidingDoor : MonoBehavior, IInteractionListener {
 
 	[SerializeField]
 	float doorCloseTimer;
@@ -23,17 +23,14 @@ public class SlidingDoor : MonoBehavior, IDoor {
 		}
 	}
 
-	#region IDoor
+	#region IInteractionListener
 
-	public void Open(){
+	public void OnInteraction(){
 		if(state == DoorState.Closed){
 			animator.SetBool("Open", true);
 			doorCloseTimeout = Time.time + doorCloseTimer;
 		}
-	}
-
-	public void Close(){
-		if(state == DoorState.Open){
+		else if(state == DoorState.Open){
 			animator.SetBool("Open", false);
 		}
 	}
