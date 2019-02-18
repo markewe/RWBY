@@ -13,4 +13,8 @@ public class ThrownWeaponController : AWeaponController {
 	void Update () {
 		
 	}
+
+	public override void Attack(GameObject target){
+
+	}
 }

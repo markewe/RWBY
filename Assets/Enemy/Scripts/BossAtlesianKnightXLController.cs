@@ -64,7 +64,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 	}
 
 	void SetAnimations(){
-		animator.SetFloat("HSpeed", agent.velocity);
+		animator.SetFloat("HSpeed", agent.velocity.magnitude);
 		animator.SetBool("ThrowGrenade", throwGrenade);
 		animator.SetBool("InTurretMode", inTurretMode);
 	}
@@ -120,7 +120,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 	void TurretModeExit(){
 		shieldHandler.DivideCurrentShield(turretModeShieldMultiplier);
 		attackRate /= turretModeFireRateMultiplier;
-		nextTurretModeTime = GetNextTurretModetime();
+		nextTurretModeTime = GetNextTurretModeTime();
 		inTurretMode = false;
 	}
 
@@ -188,7 +188,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 
 	#region IHitboxListener
 
-		public override void OnWeaponHitboxEnter(WeaponHitbox hitbox){
+	public void OnWeaponHitboxEnter(WeaponHitbox hitbox){
 		if(AttackIsBlockable(hitbox)){
 			// melee causes no shield damage
 			if(hitbox.isMelee){

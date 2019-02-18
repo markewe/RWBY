@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlidingDoor : MonoBehavior, IInteractionListener {
+public class SlidingDoor : MonoBehaviour, IInteractionListener {
 
 	[SerializeField]
 	float doorCloseTimer;
@@ -18,20 +18,32 @@ public class SlidingDoor : MonoBehavior, IInteractionListener {
 	// Update is called once per frame
 	void Update () {
 		if(state == DoorState.Open
-			&& doorCloseTimeout.time > doorCloseTimer){
+			&& Time.time > doorCloseTimer){
 			Close();
 		}
 	}
 
+	#region IDoor
+
+	public void Open(){
+		animator.SetBool("Open", true);
+		doorCloseTimeout = Time.time + doorCloseTimer;
+	}
+
+	public void Close(){
+		animator.SetBool("Open", false);
+	}
+
+	#endregion
+
 	#region IInteractionListener
 
-	public void OnInteraction(){
+	public void OnInteract(){
 		if(state == DoorState.Closed){
-			animator.SetBool("Open", true);
-			doorCloseTimeout = Time.time + doorCloseTimer;
+			Open();
 		}
 		else if(state == DoorState.Open){
-			animator.SetBool("Open", false);
+			Close();
 		}
 	}
 
