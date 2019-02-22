@@ -23,8 +23,6 @@ public class SlidingDoor : MonoBehaviour, IInteractionListener {
 		}
 	}
 
-	#region IDoor
-
 	public void Open(){
 		animator.SetBool("Open", true);
 		doorCloseTimeout = Time.time + doorCloseTimer;
@@ -33,8 +31,6 @@ public class SlidingDoor : MonoBehaviour, IInteractionListener {
 	public void Close(){
 		animator.SetBool("Open", false);
 	}
-
-	#endregion
 
 	#region IInteractionListener
 

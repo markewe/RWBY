@@ -13,10 +13,15 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 	[SerializeField]
 	float observeSpeed;
 
-	float observeDirection = 1f;
+	float observeDirection;
 	float alertTimeout;
-	EnemyState currentState = EnemyState.Patrol;
+	EnemyState currentState;
 	GameObject currentTarget;
+
+	void Awake(){
+		observeDirection = 1f;
+		currentState = EnemyState.Patrol;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -52,7 +57,15 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 	}
 
 	void AlertEnemies(){
-		
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, alertRadius);
+
+		for(var i=0; i<hitColliders.Length; i++){
+			var enemy = hitColliders[i].GetComponent<AEnemyController>();
+
+			if(enemy != null){
+				enemy.StartAttack(currentTarget);
+			}
+		}
 	}
 
 	void FaceTarget(){

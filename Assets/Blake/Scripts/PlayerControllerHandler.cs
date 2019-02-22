@@ -60,6 +60,16 @@ public class PlayerControllerHandler : MonoBehaviour, IHealthListener {
 						hoc.enabled = true;
 						currentController = hoc;
 					break;
+					case "inspect":
+						var hoc = GetComponent<HoldingObjectController>();
+						hoc.pickupObject = specialMovementTrigger.transform.parent.gameObject;
+						hoc.enabled = true;
+						currentController = hoc;
+
+						// zoom in on object
+
+						// display ui if needed
+					break;
 				}
 
 				inSpecialMovement = true;
