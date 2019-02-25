@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitboxListener {
+public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitboxListener, IFieldOfVisionListener {
 	public NavMeshAgent agent;
 	public Animator animator;
 	public HealthHandler healthHandler;
@@ -27,6 +27,22 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitbox
 		var lookRot = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
 		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * turnSmooth);
 	}
+
+	public void StartAttack(GameObject target){
+
+	}
+
+	#region IFieldOfVisionListener
+
+	public void OnFieldOfVisionEnter(GameObject gameObject){
+		TargetEnteredFieldOfVision(gameObject);
+	}
+
+	public void OnFieldOfVisionExit(GameObject gameObject){
+		TargetExitedFieldOfVision(gameObject);
+	}
+
+	#endregion 
 
 	#region IHitboxListener
 

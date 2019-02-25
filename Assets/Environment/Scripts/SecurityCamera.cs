@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
@@ -17,10 +18,12 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 	float alertTimeout;
 	EnemyState currentState;
 	GameObject currentTarget;
+	Quaternion startRotation;
 
 	void Awake(){
 		observeDirection = 1f;
 		currentState = EnemyState.Patrol;
+		startRotation = transform.rotation;
 	}
 
 	// Use this for initialization
@@ -75,14 +78,13 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 	}
 
 	void Observe(){
-		// scan back and forth in a x degree angle at x speed
-		var lookRot = observeDirection > 0f 
-			? Quaternion.Euler(0, 0, observeAngle) : Quaternion.identity;
-		
-		transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * observeSpeed);
+		// scan back and forth in a x degree angle at x speed		
+		transform.Rotate(0, observeSpeed * observeDirection, 0, Space.World);
 
-		if(transform.rotation.z == 0 || transform.rotation.z == observeAngle){
-			observeDirection *= -1f;
+		if((transform.rotation.eulerAngles.y - startRotation.eulerAngles.y) <= 0){
+			observeDirection = 1f;
+		} else if((transform.rotation.eulerAngles.y - startRotation.eulerAngles.y) >= observeAngle){
+			observeDirection = -1f;
 		}
 	}
 
@@ -90,7 +92,7 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 
 	public void OnFieldOfVisionEnter(GameObject obj){
 		// if spot player focus on player and turn to alert
-		if(obj.CompareTag("player")){
+		if(obj.CompareTag("Player")){
 			currentTarget = obj;
 
 			if(currentState == EnemyState.Patrol){
@@ -101,7 +103,7 @@ public class SecurityCamera : MonoBehaviour, IFieldOfVisionListener {
 	}
 
 	public void OnFieldOfVisionExit(GameObject obj){
-		if(obj.CompareTag("player")){
+		if(obj.CompareTag("Player")){
 			currentTarget = null;
 		}
 	}
