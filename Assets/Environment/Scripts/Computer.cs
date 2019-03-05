@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Computer : MonoBehaviour {
 	[SerializeField]
-	string uiScreenId;
+	string uiScreenID;
 }
