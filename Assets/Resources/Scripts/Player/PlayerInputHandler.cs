@@ -15,11 +15,9 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 	GameObject mainCamera;
 	PlayerControls currentControls;
 	PlayerInputs playerInputs;
-	bool canWallHug = false;
 	public RaycastHit ledgeInfo;
 	bool inSpecialMovement = false;
 	bool inTakedownRange = false;
-	float wallHugPressTimer = 0f;
 
 	// Use this for initialization
 	void Start () {
@@ -47,14 +45,13 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 			buttonMainAttack = Input.GetButton("Main Attack")
 			, buttonAltAttack = Input.GetButton("Alt Attack")
 			, buttonCrouch = Input.GetButton("Crouch")
-			, buttonDodge = Input.GetButton("Dodge")
 			, buttonInteract = Input.GetButton("Interact")
 			, buttonJump = Input.GetButton("Jump")
-			, buttonRun = Input.GetButton("Run")
 			, buttonSemblance = Input.GetButton("Semblance")
+			, buttonTakeCover = Input.GetButton("Take Cover")
 			, inputX = Input.GetAxis("Horizontal")
 			, inputZ = Input.GetAxis("Vertical")
-		};;
+		};
 	}
 
 	void SetControls() {
@@ -68,45 +65,20 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 				currentControls = GetComponent<LedgeClimbingPlayerControls>();
 				(currentControls as LedgeClimbingPlayerControls).ledgeInfo = ledgeInfo;
 			}
+			else if(playerInputs.buttonTakeCover){
+				var wallInfo = GetClosestWall();
+
+				if(CharacterIsGrounded() && wallInfo.transform != null){
+					currentControls = GetComponent<WallHuggingPlayerControls>();
+					(currentControls as WallHuggingPlayerControls).wallInfo = wallInfo;
+				}
+			}
 
 			currentControls.enabled = true;
 		}
 	}
 
 	#region physics events
-
-	void OnControllerColliderHit(ControllerColliderHit hit)
-	{
-		if(hit.gameObject.layer == (int)Layers.Environment){
-			//if(playerInputs.buttonDodge && wallHugPressTimer >= 0.5f){
-			if(wallHugPressTimer >= .25f){
-				var raycastHit = CheckWallHug();
-
-				//print(raycastHit.transform);
-				//print(CharacterIsGrounded());
-
-				if(raycastHit.transform != null && CharacterIsGrounded()){
-					//print(raycastHit.point);
-					var whc = GetComponent<WallHuggingPlayerControls>();
-					
-					currentControls.enabled = false;
-					currentControls = whc;
-					whc.wallInfo = raycastHit;
-					whc.enabled = true;
-				}
-
-				wallHugPressTimer = 0f;
-				canWallHug = false;
-			}
-			else if(playerInputs.inputZ > 0f){
-				wallHugPressTimer += Time.deltaTime;
-			}
-		}
-		else{
-			wallHugPressTimer = 0f;
-			canWallHug = false;
-		}
-	}
 
 	void OnCollisionEnter(Collision collision){
 		print(collision.gameObject.name);
@@ -136,19 +108,24 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 
 	#region control switch functions
 
-	RaycastHit CheckWallHug(){
-		// check if facing a wall and next to it and not falling
-		// then become Solid Snake
-		RaycastHit hit;
-		var wallMaxDist = 0.01f;
+	RaycastHit GetClosestWall(){
+		// check all around character in 45 degree angles for a wall, return wall that's closest
+		RaycastHit shortestHit;
+		RaycastHit curHit;
 		var layerMask = 1 << (int)Layers.Environment;
-		var playerMidpoint = transform.position;
-		var wallNear = Physics.Raycast(playerMidpoint + (characterController.radius * transform.forward), transform.forward, out hit, wallMaxDist, layerMask);
+		var rayLength = 0.1f + characterController.radius;
 
-		// if(wallNear)
-		// 	print("WALL NEAR " + wallNear);
+		Physics.Raycast(transform.position, transform.forward, out shortestHit, rayLength, layerMask);
 
-		return hit;
+		for(var i=1; i<360/45; i++){
+			Physics.Raycast(transform.position, Quaternion.Euler(0, i * 45, 0) * transform.forward, out curHit, rayLength, layerMask);
+
+			if(shortestHit.transform == null || (curHit.distance < shortestHit.distance)){
+				shortestHit = curHit;
+			}
+		}
+
+		return shortestHit;
 	}
 
 	RaycastHit CheckLedgeClimb(){
@@ -212,7 +189,14 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 			//Gizmos.DrawRay(specialMovementTrigger.transform.position, specialMovementTrigger.transform.forward * 5);
 
 		if(characterController != null)
-			Gizmos.DrawRay(transform.position + (characterController.radius * transform.forward), transform.forward * 0.5f);
+		{
+			//Gizmos.DrawRay(transform.position + (characterController.radius * transform.forward), transform.forward * 0.5f);
+			// Gizmos.DrawRay(transform.position + (characterController.radius) * (transform.right * 1f), transform.forward * 0.5f);
+			// Gizmos.DrawRay(transform.position + (characterController.radius) * (transform.right * -1f), transform.forward * 0.5f);
+			Gizmos.DrawRay(transform.position + new Vector3(0f, characterController.height / 2f, 0f), transform.forward * 0.5f);
+		}
+			
+
 
 		//print ("Gizmos");
 	}

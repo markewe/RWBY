@@ -16,8 +16,8 @@ public class CrawlingPlayerControls : PlayerControls {
 	static float crawlSpeed = 2f;
 
 	public void SetHitbox(){
-		controller.height = 0.5f;
-		controller.center = new Vector3(0f,  0.5f / 2f, 0f) + hitboxPosition;
+		characterController.height = 0.5f;
+		characterController.center = new Vector3(0f,  0.5f / 2f, 0f) + hitboxPosition;
 	}
 
 	public override void HandleInputs(PlayerInputs playerInputs){
@@ -34,7 +34,7 @@ public class CrawlingPlayerControls : PlayerControls {
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, smoothTime);
 		Vector3 vel = (transform.forward * currentSpeed * inputZ) + (transform.right * currentSpeed * inputX);
 
-		controller.Move(vel * Time.deltaTime);
+		characterController.Move(vel * Time.deltaTime);
 	}
 
 	public override void Rotate(){

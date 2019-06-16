@@ -27,7 +27,10 @@ public class WallHuggingPlayerControls : PlayerControls
     }
 
     public override void HandleInputs(PlayerInputs playerInputs){
-		targetDirection = new Vector3(playerInputs.inputX, 0f, playerInputs.inputZ);
+        var inputDirection = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * new Vector3(playerInputs.inputX, 0f, playerInputs.inputZ);
+        targetDirection = Quaternion.Euler(0, transform.eulerAngles.y * -1f, 0) * inputDirection;
+
+        //if(playerInputs.but)
     }
 
     public override void Translate(){
@@ -36,18 +39,18 @@ public class WallHuggingPlayerControls : PlayerControls
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed * targetDirection.x, ref speedSmoothVelocity, speedSmoothTime);
         Vector3 moveToPoint = transform.right * currentSpeed * Time.deltaTime;
 
-        if(targetDirection.x < 0 && !endOfWallLeft){
-            controller.Move(moveToPoint);
+        if(targetDirection.z < -0.9f){
+            ExitControls();
+        }
+        else if(targetDirection.x < 0 && !endOfWallLeft){
+            characterController.Move(moveToPoint);
             endOfWallLeft = CheckEndOfWall(-1f);
             endOfWallRight = false;
         }
         else if(targetDirection.x > 0 && !endOfWallRight){
-            controller.Move(moveToPoint);
+            characterController.Move(moveToPoint);
             endOfWallRight = CheckEndOfWall(1f);
             endOfWallLeft = false;
-        }
-        else if(targetDirection.z < 0){
-            ExitControls();
         }
     }
     
@@ -72,7 +75,7 @@ public class WallHuggingPlayerControls : PlayerControls
 		var wallCheckerCollider = wallChecker.GetComponent<BoxCollider>();
 		var rayStart = wallChecker.transform.position + (wallCheckerCollider.size.x *(wallChecker.transform.localScale.x / 2f)) * (wallChecker.transform.right * side);
 
-        return !Physics.Raycast(rayStart, (wallChecker.transform.forward), out hit, controller.radius * 2f, layerMask);
+        return !Physics.Raycast(rayStart, (wallChecker.transform.forward), out hit, characterController.radius * 2f, layerMask);
     }
     
     public override void ExitControls(){
@@ -83,7 +86,10 @@ public class WallHuggingPlayerControls : PlayerControls
 
     void PositionPlayer(){
         // move player to point
-        transform.position = wallInfo.point + (wallInfo.normal * controller.radius) + new Vector3(0f, controller.height / 2f, 0f);
+        var newPosition = wallInfo.point + (wallInfo.normal * characterController.radius);
+        
+        newPosition.y = transform.position.y;
+        transform.position = newPosition;// + new Vector3(0f, characterController.height / 2f, 0f);
 
         // rotate player so that their forward is parallel to normal of wall
         transform.forward = wallInfo.normal * -1f;

@@ -6,7 +6,7 @@ public abstract class PlayerControls : MonoBehaviour {
 	#region character components
 
 	public Animator animator;
-	public CharacterController controller;
+	public CharacterController characterController;
 
 	PlayerInputs playerInputs;
 
@@ -25,7 +25,7 @@ public abstract class PlayerControls : MonoBehaviour {
 	public abstract void ExitControls();
 
 	public virtual void Init(){
-		controller = GetComponent<CharacterController>();
+		characterController = GetComponent<CharacterController>();
 		animator = GetComponent<Animator>();
 	}
 
@@ -70,11 +70,11 @@ public abstract class PlayerControls : MonoBehaviour {
 	}
 
 	public virtual void DisableCollisions(){
-		controller.detectCollisions = false;
+		characterController.detectCollisions = false;
 	}
 
 	public virtual void EnableCollisions(){
-		controller.detectCollisions = true;
+		characterController.detectCollisions = true;
 	}
 
 	#endregion

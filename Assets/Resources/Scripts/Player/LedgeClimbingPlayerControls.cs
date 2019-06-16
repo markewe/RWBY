@@ -20,7 +20,7 @@ public class LedgeClimbingPlayerControls : PlayerControls
 		if(isJumpingToLedge){
 			transform.position = Vector3.Slerp(
 				transform.position
-				, new Vector3(transform.position.x, ledgeInfo.point.y - controller.height - .2f, transform.position.z)
+				, new Vector3(transform.position.x, ledgeInfo.point.y - characterController.height - .2f, transform.position.z)
 				,  Time.deltaTime * 10f
 			);	
 		}
@@ -43,17 +43,17 @@ public class LedgeClimbingPlayerControls : PlayerControls
 		var ledgeHeight = ledgeInfo.point.y - transform.position.y;
 		
 		// if height greater than player, jump to it
-		if(ledgeHeight > controller.height){
+		if(ledgeHeight > characterController.height){
 			//animator.applyRootMotion = true;
-			controller.detectCollisions = false;
+			characterController.detectCollisions = false;
 			animator.SetBool("isClimbingBoxUp", true);
 		}
 		// if height between waist and head, climb box without jumping
-		else if(ledgeHeight <= controller.height && ledgeHeight > controller.height / 2f){
+		else if(ledgeHeight <= characterController.height && ledgeHeight > characterController.height / 2f){
 			
 		}
 		// if height below waist, small climb
-		else if(ledgeHeight <= controller.height / 2f){
+		else if(ledgeHeight <= characterController.height / 2f){
 
 		}
 
@@ -64,7 +64,7 @@ public class LedgeClimbingPlayerControls : PlayerControls
 
 	public override void ExitControls(){
 		animator.applyRootMotion = false;
-		controller.detectCollisions = true;
+		characterController.detectCollisions = true;
 		animator.SetBool("isClimbingBoxUp", false);
 		GetComponent<PlayerInputHandler>().RestoreDefaultControls();
 	}

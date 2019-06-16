@@ -62,12 +62,6 @@ public class DefaultPlayerControls : PlayerControls {
 
 		targetDirection = new Vector3(inputX, 0f, inputZ).normalized;
 
-		// jump
-		// if(playerInputs.buttonJump && !isAttackingMelee && !isJumping){
-		// 	velY = Mathf.Sqrt(-2f * gravity * jumpHeight);
-		// 	isJumping = true;
-		// }
-
 		// attacks
 		if(buttonMainAttack && CanAttack()){
 			// else if(!isAttackingMelee){
@@ -90,21 +84,9 @@ public class DefaultPlayerControls : PlayerControls {
 		isCrouching = playerInputs.buttonCrouch && CanCrouch();
 		//print(isCrouching);
 
-		// dodge
-		if(playerInputs.buttonDodge) {
-			isDodging = true;
-			dodgeDirection = targetDirection;
-			dodgeRotation = Mathf.Atan2(dodgeDirection.x, dodgeDirection.z) * Mathf.Rad2Deg + Camera.main.transform.eulerAngles.y;
-		}
-
 		// semblance
 		if(buttonSemblance) {
 			isUsingSemblance = true;
-		}
-
-		// run
-		if(playerInputs.buttonRun){
-			isRunning = !toggleRun ? playerInputs.buttonRun : !isRunning;
 		}
 	}
 
@@ -138,7 +120,7 @@ public class DefaultPlayerControls : PlayerControls {
 			//print(vel);
 			//print(vel.magnitude);
 			animator.applyRootMotion = false;
-			controller.Move(vel * Time.deltaTime);
+			characterController.Move(vel * Time.deltaTime);
 		}
 		else{
 			currentSpeed = 0f;
@@ -148,7 +130,7 @@ public class DefaultPlayerControls : PlayerControls {
 		// print(controller.isGrounded);
 		// print(velY);
 
-		if(controller.isGrounded){
+		if(characterController.isGrounded){
 			velY = 0f;
 			isJumping = false;
 		}
@@ -223,10 +205,10 @@ public class DefaultPlayerControls : PlayerControls {
 		}
 
 		if(isUsingSemblance && clone != null){
-			Physics.IgnoreCollision(controller, clone.GetComponent<Collider>());
+			Physics.IgnoreCollision(characterController, clone.GetComponent<Collider>());
 		}
 		else if (!isUsingSemblance && clone != null){
-			Physics.IgnoreCollision(controller, clone.GetComponent<Collider>(), false);
+			Physics.IgnoreCollision(characterController, clone.GetComponent<Collider>(), false);
 		}
 	}
 
@@ -235,8 +217,8 @@ public class DefaultPlayerControls : PlayerControls {
 	}
 
 	public void SetHitbox(){
-		controller.height = 1.7f;
-		controller.center = new Vector3(0f,  1.7f / 2f, 0f);
+		characterController.height = 1.7f;
+		characterController.center = new Vector3(0f,  1.7f / 2f, 0f);
 	}
 
 	#endregion
