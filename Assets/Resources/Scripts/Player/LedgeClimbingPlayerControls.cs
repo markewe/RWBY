@@ -66,12 +66,11 @@ public class LedgeClimbingPlayerControls : PlayerControls
 		animator.applyRootMotion = false;
 		characterController.detectCollisions = true;
 		animator.SetBool("isClimbingBoxUp", false);
-		GetComponent<PlayerInputHandler>().RestoreDefaultControls();
 	}
 
 	void PositionPlayer(){
 		RaycastHit hit;
-		var layerMask = 1 << (int)Layers.Environment;
+		var layerMask = 1 << (int)GameLayers.Environment;
 		Physics.Raycast(transform.position, transform.forward, out hit, 1f, layerMask);
 
 		wallNormal = Vector3.Dot(transform.forward, hit.normal) >= 0f ? hit.normal : hit.normal * -1f;

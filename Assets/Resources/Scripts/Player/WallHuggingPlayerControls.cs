@@ -19,18 +19,21 @@ public class WallHuggingPlayerControls : PlayerControls
     Vector3 targetDirection;
     Vector3 vel;
 
-    public override void Init(){
-        base.Init();
+    public override void OnEnable(){
+        base.OnEnable();
 
         // move player perpendicular to wall at point
         PositionPlayer();
     }
 
     public override void HandleInputs(PlayerInputs playerInputs){
+        // rotate movement axis parallel to the wall
         var inputDirection = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * new Vector3(playerInputs.inputX, 0f, playerInputs.inputZ);
         targetDirection = Quaternion.Euler(0, transform.eulerAngles.y * -1f, 0) * inputDirection;
 
-        //if(playerInputs.but)
+        if(playerInputs.buttonTakeCover){
+            GetComponent<PlayerInputHandler>().RestoreDefaultControls();
+        }
     }
 
     public override void Translate(){
@@ -38,11 +41,8 @@ public class WallHuggingPlayerControls : PlayerControls
         var targetSpeed = endOfWallLeft || endOfWallRight ? 0f : walkSpeed;
 		currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed * targetDirection.x, ref speedSmoothVelocity, speedSmoothTime);
         Vector3 moveToPoint = transform.right * currentSpeed * Time.deltaTime;
-
-        if(targetDirection.z < -0.9f){
-            ExitControls();
-        }
-        else if(targetDirection.x < 0 && !endOfWallLeft){
+        
+        if(targetDirection.x < 0 && !endOfWallLeft){
             characterController.Move(moveToPoint);
             endOfWallLeft = CheckEndOfWall(-1f);
             endOfWallRight = false;
@@ -51,6 +51,9 @@ public class WallHuggingPlayerControls : PlayerControls
             characterController.Move(moveToPoint);
             endOfWallRight = CheckEndOfWall(1f);
             endOfWallLeft = false;
+        }
+        else if(targetDirection.z < -0.9f){
+            GetComponent<PlayerInputHandler>().RestoreDefaultControls();
         }
     }
     
@@ -71,7 +74,7 @@ public class WallHuggingPlayerControls : PlayerControls
     // positve right / negative left
     bool CheckEndOfWall(float side){
 		RaycastHit hit;
-		var layerMask = 1 << (int)Layers.Environment;
+		var layerMask = 1 << (int)GameLayers.Environment;
 		var wallCheckerCollider = wallChecker.GetComponent<BoxCollider>();
 		var rayStart = wallChecker.transform.position + (wallCheckerCollider.size.x *(wallChecker.transform.localScale.x / 2f)) * (wallChecker.transform.right * side);
 
@@ -81,7 +84,6 @@ public class WallHuggingPlayerControls : PlayerControls
     public override void ExitControls(){
         animator.SetFloat("hSpeed", 0f);
         animator.SetBool("isWallHugging", false);
-        GetComponent<PlayerInputHandler>().RestoreDefaultControls();
     }
 
     void PositionPlayer(){

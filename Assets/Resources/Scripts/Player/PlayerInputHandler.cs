@@ -2,17 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
-	
-	Animator animator;
-	CameraController cameraController;
-	CharacterController characterController;
+	[SerializeField]
+	GameObject firstPersonCamera;
+
+	[SerializeField]
+	GameObject thirdPersonCamera;
 
 	[SerializeField]
 	GameObject ledgeChecker;
-	GameObject specialMovementTrigger;
-	GameObject mainCamera;
+
+	Animator animator;
+	CharacterController characterController;
+	GameObject currentCamera;
+	GameObject interactionTarget;
 	PlayerControls currentControls;
 	PlayerInputs playerInputs;
 	public RaycastHit ledgeInfo;
@@ -25,8 +30,9 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 		currentControls = GetComponent<DefaultPlayerControls>();
 		currentControls.enabled = true;
 		animator = GetComponent<Animator>();
-		// mainCamera = GameObject.Find("CameraObject");
-		// cameraController = mainCamera.GetComponent<CameraController>();
+		thirdPersonCamera.SetActive(true);
+		firstPersonCamera.SetActive(false);
+		currentCamera = thirdPersonCamera;
 	}
 
 	void Update(){
@@ -45,12 +51,13 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 			buttonMainAttack = Input.GetButton("Main Attack")
 			, buttonAltAttack = Input.GetButton("Alt Attack")
 			, buttonCrouch = Input.GetButton("Crouch")
-			, buttonInteract = Input.GetButton("Interact")
+			, buttonInteract = Input.GetButtonDown("Interact")
 			, buttonJump = Input.GetButton("Jump")
 			, buttonSemblance = Input.GetButton("Semblance")
-			, buttonTakeCover = Input.GetButton("Take Cover")
+			, buttonTakeCover = Input.GetButtonDown("Take Cover")
 			, inputX = Input.GetAxis("Horizontal")
 			, inputZ = Input.GetAxis("Vertical")
+			, mouseX = Input.GetAxis("Mouse X")
 		};
 	}
 
@@ -58,8 +65,10 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 		if(currentControls is DefaultPlayerControls){
 			currentControls.enabled = false;
 
-			if(playerInputs.buttonInteract && specialMovementTrigger != null){
-
+			if(playerInputs.buttonInteract && interactionTarget != null){
+				playerInputs.buttonInteract = false;
+				interactionTarget.GetComponent<IInteractable>().OnInteract();
+				// currentControls = GetComponent<InteractingPlayerControls>();
 			}
 			else if(playerInputs.buttonJump && ledgeInfo.transform != null){
 				currentControls = GetComponent<LedgeClimbingPlayerControls>();
@@ -67,6 +76,7 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 			}
 			else if(playerInputs.buttonTakeCover){
 				var wallInfo = GetClosestWall();
+				playerInputs.buttonTakeCover = false;	// so it doesn't trigger when new controls get enabled
 
 				if(CharacterIsGrounded() && wallInfo.transform != null){
 					currentControls = GetComponent<WallHuggingPlayerControls>();
@@ -85,18 +95,14 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 	}
 
 	void OnTriggerEnter(Collider col){
-		print(col.gameObject.name + " Enter");
-
-		if(col.tag.Equals("SpecialMovementTrigger")){
-			specialMovementTrigger = col.gameObject;
+		if(col.gameObject.GetComponent<IInteractable>() != null){
+			interactionTarget = col.gameObject;
 		}
 	}
 
 	void OnTriggerExit(Collider col){
-		//print(col.gameObject.name + " Exit");
-
-		if(col.tag.Equals("SpecialMovementTrigger")){
-			specialMovementTrigger = null;
+		if(col.gameObject.layer == (int)GameLayers.Environment){
+			interactionTarget = null;
 		}
 	}
 
@@ -112,7 +118,7 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 		// check all around character in 45 degree angles for a wall, return wall that's closest
 		RaycastHit shortestHit;
 		RaycastHit curHit;
-		var layerMask = 1 << (int)Layers.Environment;
+		var layerMask = 1 << (int)GameLayers.Environment;
 		var rayLength = 0.1f + characterController.radius;
 
 		Physics.Raycast(transform.position, transform.forward, out shortestHit, rayLength, layerMask);
@@ -130,7 +136,7 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 
 	RaycastHit CheckLedgeClimb(){
 		RaycastHit hit;
-		var layerMask = 1 << (int)Layers.Environment;
+		var layerMask = 1 << (int)GameLayers.Environment;
 		var ledgeCheckerCollider = ledgeChecker.GetComponent<BoxCollider>();
 		var rayLength = (ledgeChecker.transform.position - transform.position).y - 1f;
 
@@ -140,9 +146,21 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 	}
 
 	public void RestoreDefaultControls(){
+		currentControls.ExitControls();
 		currentControls.enabled = false;
 		currentControls = GetComponent<DefaultPlayerControls>();
 		currentControls.enabled = true;
+
+		SwitchCamera(thirdPersonCamera);
+	}
+
+	void SwitchCamera(GameObject newCamera){
+		if(currentCamera != newCamera){
+			newCamera.SetActive(true);
+			currentCamera.SetActive(false);
+			currentCamera = newCamera;
+		}
+        
 	}
 
 	#endregion

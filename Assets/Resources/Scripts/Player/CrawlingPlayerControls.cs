@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CrawlingPlayerControls : PlayerControls {
 
+	public GameObject crawlTrigger;
+
 	Vector3 targetDirection;
 	Vector3 hitboxPosition = new Vector3(0f, 0f, 0.5f);
 	float currentSpeed;
@@ -15,15 +17,21 @@ public class CrawlingPlayerControls : PlayerControls {
 	static float crawlSpeedSmoothTime = 0.1f;
 	static float crawlSpeed = 2f;
 
+	public override void OnEnable(){
+		base.OnEnable();
+		SetHitbox();
+		PositionPlayer();
+	}
+
 	public void SetHitbox(){
 		characterController.height = 0.5f;
 		characterController.center = new Vector3(0f,  0.5f / 2f, 0f) + hitboxPosition;
 	}
 
 	public override void HandleInputs(PlayerInputs playerInputs){
-		inputX = Input.GetAxis("Horizontal");
-		inputZ = Input.GetAxis("Vertical");
-		mouseX = Input.GetAxis("Mouse X") * cameraTurnSpeed;
+		inputX = playerInputs.inputX;
+		inputZ = playerInputs.inputZ;
+		mouseX = playerInputs.mouseX * cameraTurnSpeed;
 	}
 
 	public override void Translate(){
@@ -45,45 +53,41 @@ public class CrawlingPlayerControls : PlayerControls {
 	}
 
 	public override void SetAnimationParams(){
-		animator.SetBool("IsCrawling", true);
-		animator.SetFloat("HSpeed", currentSpeed);
+		animator.SetBool("isCrawling", true);
+		animator.SetFloat("hSpeed", currentSpeed);
 	}
-
-	
 
 	public override void PostEvents(){}
 
-public override void ExitControls(){
-	
-}
-
-	void OnTriggerEnter(Collider col){
-		if(this.enabled && col.tag.Equals("SpecialMovementTrigger")){
-			// if(col.GetComponent<SpecialMovementTriggers>().movementType.Equals("crawl")){
-				
-			// }
-		}
+	public override void ExitControls(){
+		animator.SetBool("isCrawling", false);
 	}
 
 	void OnTriggerExit(Collider col){
-		if(this.enabled && col.tag.Equals("SpecialMovementTrigger")){
-			// if(col.GetComponent<SpecialMovementTriggers>().movementType.Equals("crawl") && !CheckIfCrawlSpace()){
-			// 	animator.SetBool("IsCrawling", false);
-			// 	GetComponent<PlayerControllerHandler>().ExitSpecialMovment("crawl");
-			// }
+		if(!CheckIfCrawlSpace()){
+			//GetComponent<PlayerInputHandler>().RestoreDefaultControls();
 		}
 	}
 		
 	bool CheckIfCrawlSpace(){
 		var inCrawlSpace = false;
 		RaycastHit hit;
-		var layers = 1 << 9; 
-		layers = ~layers; // ignore player
+		var layers = 1 << (int)GameLayers.Environment;
 
 		// check if enough space all around character to stand
-		inCrawlSpace = Physics.Raycast(transform.position, Vector3.up , out hit, 1.7f, layers);
+		inCrawlSpace = Physics.Raycast(transform.position, Vector3.up , out hit, 1.8f, layers);
+
+		//print(inCrawlSpace);
 		
 		return inCrawlSpace;
+	}
+
+	void PositionPlayer(){
+		// move player to in front of trigger (inside crawl space)
+		transform.rotation = crawlTrigger.transform.rotation;
+		print("NEW POSTION");
+		print(crawlTrigger.transform.position + (crawlTrigger.transform.forward * characterController.radius * 2f));
+		//transform.position = crawlTrigger.transform.position + (crawlTrigger.transform.forward * characterController.radius * 2f);
 	}
 
 	#region debugging

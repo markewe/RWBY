@@ -53,6 +53,11 @@ public class DefaultPlayerControls : PlayerControls {
 
 	#region PlayerControls functions
 
+	public override void OnEnable(){
+		base.OnEnable();
+		SetHitbox();
+	}
+
 	public override void HandleInputs(PlayerInputs playerInputs){
 		buttonMainAttack = playerInputs.buttonMainAttack;
 		buttonSemblance = clone == null ? playerInputs.buttonSemblance : false;
@@ -116,30 +121,15 @@ public class DefaultPlayerControls : PlayerControls {
 			if(isAimingGun){
 				vel.y = 0f;
 			}
-
-			//print(vel);
-			//print(vel.magnitude);
 			animator.applyRootMotion = false;
 			characterController.Move(vel * Time.deltaTime);
 		}
 		else{
 			currentSpeed = 0f;
 			animator.applyRootMotion = true;
-		}
+		};
 
-		// print(controller.isGrounded);
-		// print(velY);
-
-		if(characterController.isGrounded){
-			velY = 0f;
-			isJumping = false;
-		}
-		else {
-			velY += Time.deltaTime * gravity * playerMass;
-		}
-
-		//print(controller.velocity);
-		//print(animator.applyRootMotion);
+		velY = characterController.isGrounded ? 0f : velY += Time.deltaTime * gravity * playerMass;
 	}
 
 	public override void Rotate(){

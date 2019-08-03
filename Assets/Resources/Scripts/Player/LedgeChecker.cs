@@ -17,7 +17,7 @@ public class LedgeChecker : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
-		var layerMask = 1 << (int)Layers.Environment;
+		var layerMask = 1 << (int)GameLayers.Environment;
         var collider = GetComponent<BoxCollider>();
 		var rayLength = (transform.position - player.transform.position).y - (player.GetComponent<CharacterController>().height / 2f);
         var validLedge = true;

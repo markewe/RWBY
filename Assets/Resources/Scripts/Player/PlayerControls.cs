@@ -39,7 +39,7 @@ public abstract class PlayerControls : MonoBehaviour {
 		//Init();
 	}
 	public virtual void Start () {
-		//Init();
+		Init();
 	}
 
 	#endregion

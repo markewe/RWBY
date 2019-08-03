@@ -1,4 +1,4 @@
-public enum PlayerControlStates {
+public enum PlayerControlState {
     DEFAULT
     ,ATTACKING
     ,JUMPING

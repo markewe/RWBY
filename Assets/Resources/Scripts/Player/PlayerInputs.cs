@@ -13,5 +13,6 @@ public class PlayerInputs
     public bool buttonTakeCover { get; set; }
     public float inputX { get; set; }
     public float inputZ { get; set; }
+    public float mouseX { get; set; }
     
 }
