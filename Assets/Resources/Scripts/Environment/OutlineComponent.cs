@@ -1,32 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using cakeslice;
 
 public class OutlineComponent : MonoBehaviour
 {
-    Shader defaultShader;
-    Shader outlineShader;
-
     // Start is called before the first frame update
     void Start()
-    {
-        defaultShader = gameObject.GetComponent<Renderer>().material.shader;
-        outlineShader = Shader.Find("RealToon/Version 5/Default/White Outline");
-    }
-
-    // Update is called once per frame
-    void Update()
     {
         
     }
 
     void OnTriggerEnter(Collider other)
     {
-        gameObject.GetComponent<Renderer>().material.shader = outlineShader;
+        gameObject.AddComponent<Outline>();
+
+        foreach(Transform child in transform){
+            if(child.GetComponent<Renderer>() != null){
+                child.gameObject.AddComponent<Outline>();
+            }
+        }
+        
     }
 
     void OnTriggerExit(Collider other)
     {
-        gameObject.GetComponent<Renderer>().material.shader = defaultShader;
+        Destroy(gameObject.GetComponent<Outline>());
+        
+
+        foreach(Transform child in transform){
+            Destroy(child.GetComponent<Outline>());
+        }
+        
     }
 }
