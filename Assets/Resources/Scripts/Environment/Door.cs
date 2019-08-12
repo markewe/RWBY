@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Door : MonoBehaviour, IInteractable {
 
+	public DoorType doorType;
 	[SerializeField]
 	float doorCloseTimer;
 	float doorCloseTimeout;
@@ -55,6 +56,7 @@ public class Door : MonoBehaviour, IInteractable {
 	#region animation events
 
 	public void SetState(string newState){
+		print(newState);
 		state = (DoorState)DoorState.Parse(typeof(DoorState), newState);
 	}
 

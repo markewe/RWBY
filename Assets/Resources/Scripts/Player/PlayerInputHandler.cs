@@ -69,6 +69,10 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 				playerInputs.buttonInteract = false;
 				interactionTarget.GetComponent<IInteractable>().OnInteract();
 				// currentControls = GetComponent<InteractingPlayerControls>();
+
+				if(interactionTarget.GetComponent<Door>().doorType == DoorType.Vent){
+					currentControls = GetComponent<CrawlingPlayerControls>();
+				}
 			}
 			else if(playerInputs.buttonJump && ledgeInfo.transform != null){
 				currentControls = GetComponent<LedgeClimbingPlayerControls>();

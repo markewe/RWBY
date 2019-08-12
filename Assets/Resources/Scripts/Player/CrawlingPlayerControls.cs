@@ -8,6 +8,7 @@ public class CrawlingPlayerControls : PlayerControls {
 
 	Vector3 targetDirection;
 	Vector3 hitboxPosition = new Vector3(0f, 0f, 0.5f);
+	bool isCrawlingInto = false;
 	float currentSpeed;
 	float inputX;
 	float inputZ;
@@ -84,11 +85,23 @@ public class CrawlingPlayerControls : PlayerControls {
 
 	void PositionPlayer(){
 		// move player to in front of trigger (inside crawl space)
-		transform.rotation = crawlTrigger.transform.rotation;
-		print("NEW POSTION");
-		print(crawlTrigger.transform.position + (crawlTrigger.transform.forward * characterController.radius * 2f));
+		// transform.rotation = crawlTrigger.transform.rotation;
+		// print("NEW POSTION");
+		// print(crawlTrigger.transform.position + (crawlTrigger.transform.forward * characterController.radius * 2f));
 		//transform.position = crawlTrigger.transform.position + (crawlTrigger.transform.forward * characterController.radius * 2f);
+
+		isCrawlingInto = true;
+		animator.applyRootMotion = true;
 	}
+
+	#region animation events
+
+	void CrawlIntoEnd(){
+		isCrawlingInto = false;
+		animator.applyRootMotion = false;
+	}
+
+	#endregion
 
 	#region debugging
 	void OnDrawGizmos() {
