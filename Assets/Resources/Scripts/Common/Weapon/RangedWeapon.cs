@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangedWeaponController : AWeaponController {
+public class RangedWeapon : MonoBehaviour, IWeapon {
 	[SerializeField]
 	float projectileSpeed;
 	[SerializeField]
@@ -10,7 +10,7 @@ public class RangedWeaponController : AWeaponController {
 	[SerializeField]
 	GameObject projectileObject;
 
-	public override void Attack(GameObject target){
+	public void OnAttackStart(GameObject target){
 		var emitter = transform.Find("ProjectileEmitter");
 		
 		// play shooting FX
@@ -20,4 +20,6 @@ public class RangedWeaponController : AWeaponController {
 		var projectile = Instantiate(projectileObject, emitter.transform.position, Quaternion.identity);
 		projectile.GetComponent<Rigidbody>().velocity = emitter.transform.forward * projectileSpeed;
 	}
+
+	public void OnAttackEnd(GameObject target){}
 }

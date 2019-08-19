@@ -7,15 +7,11 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitbox
 	public NavMeshAgent agent;
 	public Animator animator;
 	public HealthHandler healthHandler;
-	Rigidbody rigidBody;
-
-	public bool isInTakedown = false;
 
 	public virtual void Start () {
 		agent = GetComponent<NavMeshAgent>();
 		animator = GetComponent<Animator>();		
 		healthHandler = GetComponent<HealthHandler>();
-		rigidBody = GetComponent<Rigidbody>();
 	}
 
 	public virtual void Update(){}
@@ -32,9 +28,7 @@ public abstract class AEnemyController : MonoBehaviour, IHealthListener, IHitbox
 
 	#region IHitboxListener
 
-	public virtual void OnWeaponHitboxEnter(WeaponHitbox hitbox){
-		GetComponent<HealthHandler>().TakeDamage(hitbox.hitAmount);
-	}
+	public virtual void OnWeaponHitboxEnter(WeaponHitbox hitbox){}
 
 	#endregion
 

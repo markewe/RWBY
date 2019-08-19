@@ -95,7 +95,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 			if(Time.time > nextAttackTime){
 				isAttacking = true;
 				nextAttackTime = Time.time + attackRate;
-				GetComponent<RangedWeaponController>().Attack(currentTarget);
+				GetComponent<RangedWeapon>().OnAttackStart(currentTarget);
 			}
 
 			// throw grenade
@@ -145,7 +145,7 @@ public class BossAtlesianKnightXLController : MonoBehaviour
 	#region animation events
 
 	void ThrowGrenade(){
-		GetComponent<ThrownWeaponController>().Attack(currentTarget);
+		GetComponent<ThrownWeapon>().OnAttackStart(currentTarget);
 		throwGrenade = false;
 	}
 

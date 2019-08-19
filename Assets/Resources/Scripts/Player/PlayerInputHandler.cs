@@ -72,6 +72,9 @@ public class PlayerInputHandler : MonoBehaviour {//, IHealthListener {
 
 				if(interactionTarget.GetComponent<Door>().doorType == DoorType.Vent){
 					currentControls = GetComponent<CrawlingPlayerControls>();
+					
+					firstPersonCamera.SetActive(true);
+					thirdPersonCamera.SetActive(false);
 				}
 			}
 			else if(playerInputs.buttonJump && ledgeInfo.transform != null){

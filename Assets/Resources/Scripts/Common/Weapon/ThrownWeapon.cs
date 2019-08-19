@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AWeaponHolder : MonoBehaviour {
+public class ThrownWeapon : MonoBehaviour, IWeapon {
 
 	// Use this for initialization
 	void Start () {
@@ -13,4 +13,10 @@ public class AWeaponHolder : MonoBehaviour {
 	void Update () {
 		
 	}
+
+	public void OnAttackStart(GameObject target){
+
+	}
+
+	public void OnAttackEnd(GameObject target){}
 }

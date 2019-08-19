@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class AtlesianKnightTwoHundredController : AEnemyController {
 
 	[SerializeField]
-	GameObject patrolWaypointsObject;
+	Transform patrolWaypointsContainer;
 	[SerializeField]
 	GameObject weapon;
 	
@@ -19,7 +19,7 @@ public class AtlesianKnightTwoHundredController : AEnemyController {
 	bool targetWithinRange = false;
 	float attackRadius = 10f;
 	float attackWalkSpeed = 4f;
-	float patrolWalkSpeed = 2f;
+	float patrolWalkSpeed = 1f;
 	float hostileTimeout = 0f;
 	float hostileTimer = 5f;
 	float retreatDistance = 3f;	
@@ -27,20 +27,20 @@ public class AtlesianKnightTwoHundredController : AEnemyController {
 	float stuckTimeout = 0f;
 	float stuckTimer = 10f;
 	float turnSmooth = 2f;
-	
-	EnemyState state = EnemyState.Patrol;
 	List<Vector3> patrolWaypoints;
+	EnemyState state = EnemyState.Patrol;
 	System.Random random;
 
 	// Use this for initialization
 	public override void Start () {
 		base.Start();
+		GetComponent<Animator>().applyRootMotion = false;
 		random = new System.Random();
 
 		// create patrol waypoint list
 		patrolWaypoints = new List<Vector3>();
 
-		foreach(Transform waypoint in patrolWaypointsObject.transform){
+		foreach(Transform waypoint in patrolWaypointsContainer.transform){
 			patrolWaypoints.Add(waypoint.position);
 		}
 
@@ -49,24 +49,26 @@ public class AtlesianKnightTwoHundredController : AEnemyController {
 	
 	// Update is called once per frame
 	public override void Update () {		
-		switch(state){
-			case EnemyState.Hostile:
-				if(currentTarget != null){
-					AttackTarget();
-				}
-				else if(Time.time <= hostileTimeout) {
-					//ScanForTarget();
-				}
-				else if(Time.time > hostileTimeout){
-					//StartPatrol();
-				}
-				break;
-			case EnemyState.Patrol:
-				Patrol();
-				break;
-		}
+		Patrol();
 
-		CheckIfStuck();
+		// switch(state){
+		// 	case EnemyState.Hostile:
+		// 		if(currentTarget != null){
+		// 			AttackTarget();
+		// 		}
+		// 		else if(Time.time <= hostileTimeout) {
+		// 			//ScanForTarget();
+		// 		}
+		// 		else if(Time.time > hostileTimeout){
+		// 			//StartPatrol();
+		// 		}
+		// 		break;
+		// 	case EnemyState.Patrol:
+		// 		Patrol();
+		// 		break;
+		// }
+
+		// CheckIfStuck();
 		SetAnimations();
 	}
 
@@ -189,7 +191,7 @@ public class AtlesianKnightTwoHundredController : AEnemyController {
 		if(distance < attackRadius && Time.time > nextAttackTime){
 			isAttacking = true;
 			nextAttackTime = Time.time + attackRate;
-			weapon.GetComponent<RangedWeaponController>().Attack(currentTarget);
+			weapon.GetComponent<RangedWeapon>().OnAttackStart(currentTarget);
 		}
 	}
 

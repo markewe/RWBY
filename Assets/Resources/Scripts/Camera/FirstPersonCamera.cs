@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class FirstPersonCamera : MonoBehaviour
 {
+    [SerializeField]
+    Transform positioner;
     CharacterController characterController;
     Vector3 speedSmoothVelocity;
 
@@ -12,9 +14,9 @@ public class FirstPersonCamera : MonoBehaviour
     }
     
     void Update(){
-        // move camera to top of hitbox
-        if(Mathf.Abs(transform.localPosition.y - characterController.height) > 0.1f){
-            transform.localPosition = Vector3.SmoothDamp(transform.localPosition, characterController.center, ref speedSmoothVelocity, 0.1f);
-        } 
+        // keep camera bobbing
+        // if(Mathf.Abs(transform.localPosition.y - positioner.position.y) > 0.1f){
+            transform.position = Vector3.SmoothDamp(transform.position, positioner.position, ref speedSmoothVelocity, 0.1f);
+        // } 
     }
 }

@@ -37,9 +37,9 @@ public class EnemyPatrolController : AEnemyController {
 			}
 		}
 
-		if(isInTakedown){
+		// if(isInTakedown){
 			//FaceObject(PlayerManager.instance.player, 20f);
-		}
+		// }
 
 		base.Update();
 	}
